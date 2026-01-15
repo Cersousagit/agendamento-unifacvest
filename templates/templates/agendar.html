@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Agendamento - UNIFACVEST</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: white;
+            color: #8b0000;
+            text-align: center;
+        }
+        form {
+            background: #f2f2f2;
+            padding: 20px;
+            width: 320px;
+            margin: auto;
+            border-radius: 10px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        button {
+            background: #8b0000;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Agendamento de Provas - UNIFACVEST</h2>
+
+<form method="POST">
+    <input name="nome" placeholder="Nome completo" required>
+    <textarea name="disciplinas" placeholder="Disciplinas (uma por linha)" required></textarea>
+    <input type="date" name="data" required>
+    <input type="time" name="hora" required>
+    <button type="submit">Enviar</button>
+</form>
+
+<p>{{ msg }}</p>
+
+<a href="/logout">Sair</a>
+
+</body>
+</html>
