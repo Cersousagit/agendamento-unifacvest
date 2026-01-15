@@ -50,19 +50,21 @@ def admin():
         return redirect("/")
 
     hoje = datetime.now().strftime("%Y-%m-%d")
-    ativos = [a for a in agendamentos if a["data"] >= hoje]
+
+    ativos = []
+    for i, a in enumerate(agendamentos):
+        if a["data"] >= hoje:
+            ativos.append({
+                "index": i,
+                "nome": a["nome"],
+                "disciplinas": a["disciplinas"],
+                "data": a["data"],
+                "hora": a["hora"],
+                "presente": a["presente"]
+            })
+
     return render_template("admin.html", agendamentos=ativos)
 
-@app.route("/presenca/<int:index>")
-def presenca(index):
-    if session.get("perfil") == "admin":
-        agendamentos[index]["presente"] = True
-    return redirect("/admin")
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
 
 import os
 
