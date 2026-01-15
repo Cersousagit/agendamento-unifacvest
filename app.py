@@ -52,18 +52,25 @@ def admin():
     hoje = datetime.now().strftime("%Y-%m-%d")
 
     ativos = []
+
+    # garante que a lista exista
+    global agendamentos
+    if "agendamentos" not in globals():
+        agendamentos = []
+
     for i, a in enumerate(agendamentos):
-        if a["data"] >= hoje:
+        if a.get("data", "") >= hoje:
             ativos.append({
                 "index": i,
-                "nome": a["nome"],
-                "disciplinas": a["disciplinas"],
-                "data": a["data"],
-                "hora": a["hora"],
-                "presente": a["presente"]
+                "nome": a.get("nome", ""),
+                "disciplinas": a.get("disciplinas", ""),
+                "data": a.get("data", ""),
+                "hora": a.get("hora", ""),
+                "presente": a.get("presente", False)
             })
 
     return render_template("admin.html", agendamentos=ativos)
+
 
 
 import os
