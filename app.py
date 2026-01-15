@@ -79,9 +79,11 @@ def marcar_presenca(index):
     global agendamentos
 
     if index < len(agendamentos):
-        agendamentos[index]["presente"] = True
+        # remove o aluno após confirmar presença
+        agendamentos.pop(index)
 
     return redirect("/admin")
+
 
 
 @app.route("/logout")
