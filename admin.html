@@ -41,7 +41,8 @@
     Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
     {% if not a.presente %}
-        <a href="/presenca/{{ loop.index0 }}">
+        <a href="/presenca/{{ a.index }}">
+
             <button>Presente</button>
         </a>
     {% else %}
