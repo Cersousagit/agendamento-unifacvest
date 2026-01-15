@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - UNIFACVEST</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #8b0000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 320px;
+        }
+        h2 {
+            text-align: center;
+            color: #8b0000;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        button {
+            background: #8b0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .erro {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2>Login UNIFACVEST</h2>
+    <form method="POST">
+        <input type="text" name="usuario" placeholder="Usuário" required>
+        <input type="password" name="senha" placeholder="Senha" required>
+        <button type="submit">Entrar</button>
+    </form>
+    {% if erro %}
+        <div class="erro">{{ erro }}</div>
+    {% endif %}
+</div>
+</body>
+</html>
