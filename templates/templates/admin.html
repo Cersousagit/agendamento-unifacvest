@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - UNIFACVEST</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: white;
+            color: #8b0000;
+        }
+        .card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .presente {
+            color: green;
+            font-weight: bold;
+        }
+        button {
+            background: green;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Área do Polo - UNIFACVEST</h2>
+<a href="/logout">Sair</a>
+<hr>
+
+{% for a in agendamentos %}
+<div class="card">
+    <strong>{{ a.nome }}</strong><br>
+    Disciplinas: {{ a.disciplinas }}<br>
+    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
+
+    {% if not a.presente %}
+        <a href="/presenca/{{ loop.index0 }}">
+            <button>Presente</button>
+        </a>
+    {% else %}
+        <span class="presente">✔ Presente confirmado</span>
+    {% endif %}
+</div>
+{% endfor %}
+
+</body>
+</html>
