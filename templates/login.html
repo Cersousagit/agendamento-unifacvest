@@ -13,57 +13,32 @@
             height: 100vh;
             margin: 0;
         }
-
         .box {
             background: white;
             padding: 30px;
             border-radius: 8px;
-            width: 340px;
+            width: 320px;
             text-align: center;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
-
-        .logo-box {
-            background: white;
-            padding: 10px;
-            border-radius: 6px;
-            display: inline-block;
+        img {
+            width: 180px;
             margin-bottom: 15px;
         }
-
-        .logo-box img {
-            width: 160px;
-        }
-
         h2 {
             color: #8b0000;
             margin-bottom: 20px;
         }
-
-        input {
+        input, button {
             width: 100%;
             padding: 10px;
             margin-top: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
         }
-
         button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 15px;
             background: #8b0000;
             color: white;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
         }
-
-        button:hover {
-            background: #a00000;
-        }
-
         .erro {
             color: red;
             margin-top: 10px;
@@ -73,11 +48,7 @@
 <body>
 
 <div class="box">
-
-    <!-- LOGO UNIFACVEST COM FUNDO BRANCO -->
-    <div class="logo-box">
-        <img src="{{ url_for('static', filename='unifacvest.png') }}" alt="UNIFACVEST">
-    </div>
+    <img src="{{ url_for('static', filename='unifacvest.png') }}" alt="UNIFACVEST">
 
     <h2>Login UNIFACVEST</h2>
 
@@ -90,7 +61,6 @@
     {% if erro %}
         <div class="erro">{{ erro }}</div>
     {% endif %}
-
 </div>
 
 </body>
