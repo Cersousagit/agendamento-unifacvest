@@ -13,36 +13,59 @@
             height: 100vh;
             margin: 0;
         }
+
         .box {
             background: white;
             padding: 30px;
             border-radius: 8px;
             width: 340px;
             text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
-        .logo {
-            width: 160px;
+
+        .logo-box {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            display: inline-block;
             margin-bottom: 15px;
         }
+
+        .logo-box img {
+            width: 160px;
+        }
+
         h2 {
             color: #8b0000;
             margin-bottom: 20px;
         }
-        input, button {
+
+        input {
             width: 100%;
             padding: 10px;
             margin-top: 10px;
-            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
         }
+
         button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
             background: #8b0000;
             color: white;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
+            font-weight: bold;
         }
+
+        button:hover {
+            background: #a00000;
+        }
+
         .erro {
             color: red;
-            text-align: center;
             margin-top: 10px;
         }
     </style>
@@ -51,10 +74,10 @@
 
 <div class="box">
 
-    <!-- LOGO UNIFACVEST -->
-    <img src="{{ url_for('static', filename='unifacvest.png') }}"
-         alt="UNIFACVEST"
-         class="logo">
+    <!-- LOGO UNIFACVEST COM FUNDO BRANCO -->
+    <div class="logo-box">
+        <img src="{{ url_for('static', filename='unifacvest.png') }}" alt="UNIFACVEST">
+    </div>
 
     <h2>Login UNIFACVEST</h2>
 
@@ -67,6 +90,7 @@
     {% if erro %}
         <div class="erro">{{ erro }}</div>
     {% endif %}
+
 </div>
 
 </body>
