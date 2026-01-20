@@ -1,116 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Polo UNIFACVEST - Administração</title>
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f5f5;
-            margin: 0;
-        }
-
-        header {
-            background: #8b0000;
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        header img {
-            height: 45px;
-        }
-
-        header a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .container {
-            padding: 20px;
-            max-width: 900px;
-            margin: auto;
-        }
-
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .card strong {
-            color: #8b0000;
-            font-size: 18px;
-        }
-
-        .info {
-            margin: 8px 0;
-        }
-
-        .btn-presente {
-            background: green;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .presente {
-            color: green;
-            font-weight: bold;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            color: #777;
-            font-size: 13px;
-        }
-    </style>
+    <title>Admin</title>
 </head>
 <body>
 
-<header>
-    <img src="/static/unifacvest.png" alt="UNIFACVEST">
-    <a href="/logout">Sair</a>
-</header>
+<img src="{{ url_for('static', filename='unifacvest.png') }}" width="120">
+<h2>Área Administrativa - UNIFACVEST</h2>
 
-<div class="container">
-    <h2>Área Administrativa do Polo</h2>
+<a href="/logout">Sair</a>
+<hr>
 
-    {% if agendamentos %}
-        {% for a in agendamentos %}
-        <div class="card">
-            <strong>{{ a.nome }}</strong>
+{% for a in agendamentos %}
+<div>
+    <strong>{{ a.nome }}</strong><br>
+    {{ a.disciplinas }}<br>
+    {{ a.data }} - {{ a.hora }}<br>
 
-            <div class="info">
-                <b>Disciplinas:</b> {{ a.disciplinas }}
-            </div>
-
-            <div class="info">
-                <b>Data:</b> {{ a.data }} &nbsp; | &nbsp; <b>Hora:</b> {{ a.hora }}
-            </div>
-
-            <a href="/presente/{{ a.index }}">
-                <button class="btn-presente">Confirmar Presença</button>
-            </a>
-        </div>
-        {% endfor %}
+    {% if not a.presente %}
+        <a href="/presenca/{{ a.index }}">Presente</a>
     {% else %}
-        <p>Nenhum agendamento pendente.</p>
+        ✔ Presente confirmado
     {% endif %}
 </div>
-
-<footer>
-    © UNIFACVEST – Sistema de Agendamento de Provas
-</footer>
+<hr>
+{% endfor %}
 
 </body>
 </html>
