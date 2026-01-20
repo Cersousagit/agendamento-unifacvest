@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.secret_key = "unifacvest123"
@@ -50,51 +51,32 @@ def admin():
         return redirect("/")
 
     hoje = datetime.now().strftime("%Y-%m-%d")
-
     ativos = []
 
-    # garante que a lista exista
-    global agendamentos
-    if "agendamentos" not in globals():
-        agendamentos = []
-
     for i, a in enumerate(agendamentos):
-        if a.get("data", "") >= hoje:
+        if a["data"] >= hoje:
             ativos.append({
                 "index": i,
-                "nome": a.get("nome", ""),
-                "disciplinas": a.get("disciplinas", ""),
-                "data": a.get("data", ""),
-                "hora": a.get("hora", ""),
-                "presente": a.get("presente", False)
+                **a
             })
 
     return render_template("admin.html", agendamentos=ativos)
 
-@app.route("/presente/<int:index>")
-def marcar_presenca(index):
+@app.route("/presenca/<int:index>")
+def presenca(index):
     if session.get("perfil") != "admin":
         return redirect("/")
 
-    global agendamentos
-
     if index < len(agendamentos):
-        # remove o aluno após confirmar presença
-        agendamentos.pop(index)
+        agendamentos[index]["presente"] = True
 
     return redirect("/admin")
-
-
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-
-import os
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
-
