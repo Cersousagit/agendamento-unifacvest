@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Login - UNIFACVEST</title>
-
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +13,6 @@
             height: 100vh;
             margin: 0;
         }
-
         .box {
             background: white;
             padding: 30px;
@@ -22,54 +20,41 @@
             width: 340px;
             text-align: center;
         }
-
-        img {
-            width: 140px;
+        .logo {
+            width: 160px;
             margin-bottom: 15px;
         }
-
         h2 {
             color: #8b0000;
             margin-bottom: 20px;
         }
-
-        input {
+        input, button {
             width: 100%;
             padding: 10px;
             margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            font-size: 14px;
         }
-
         button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 15px;
             background: #8b0000;
             color: white;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
         }
-
-        button:hover {
-            background: #a00000;
-        }
-
         .erro {
             color: red;
+            text-align: center;
             margin-top: 10px;
         }
     </style>
 </head>
-
 <body>
 
 <div class="box">
 
-    <!-- LOGO -->
-    <img src="{{ url_for('static', filename='unifacvest.png') }}" alt="UNIFACVEST">
+    <!-- LOGO UNIFACVEST -->
+    <img src="{{ url_for('static', filename='unifacvest.png') }}"
+         alt="UNIFACVEST"
+         class="logo">
 
     <h2>Login UNIFACVEST</h2>
 
@@ -82,7 +67,6 @@
     {% if erro %}
         <div class="erro">{{ erro }}</div>
     {% endif %}
-
 </div>
 
 </body>
