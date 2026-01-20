@@ -2,55 +2,115 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - UNIFACVEST</title>
+    <title>Polo UNIFACVEST - Administração</title>
     <style>
         body {
-            font-family: Arial;
-            background: white;
-            color: #8b0000;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
         }
+
+        header {
+            background: #8b0000;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header img {
+            height: 45px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+
         .card {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+
+        .card strong {
+            color: #8b0000;
+            font-size: 18px;
+        }
+
+        .info {
+            margin: 8px 0;
+        }
+
+        .btn-presente {
+            background: green;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
         .presente {
             color: green;
             font-weight: bold;
         }
-        button {
-            background: green;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            color: #777;
+            font-size: 13px;
         }
     </style>
 </head>
 <body>
 
-<h2>Área do Polo - UNIFACVEST</h2>
-<a href="/logout">Sair</a>
-<hr>
+<header>
+    <img src="/static/unifacvest.png" alt="UNIFACVEST">
+    <a href="/logout">Sair</a>
+</header>
 
-{% for a in agendamentos %}
-<div class="card">
-    <strong>{{ a.nome }}</strong><br>
-    Disciplinas: {{ a.disciplinas }}<br>
-    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
+<div class="container">
+    <h2>Área Administrativa do Polo</h2>
 
-    {% if not a.presente %}
-        <a href="/presente/{{ a.index }}">
+    {% if agendamentos %}
+        {% for a in agendamentos %}
+        <div class="card">
+            <strong>{{ a.nome }}</strong>
 
+            <div class="info">
+                <b>Disciplinas:</b> {{ a.disciplinas }}
+            </div>
 
-            <button>Presente</button>
-        </a>
+            <div class="info">
+                <b>Data:</b> {{ a.data }} &nbsp; | &nbsp; <b>Hora:</b> {{ a.hora }}
+            </div>
+
+            <a href="/presente/{{ a.index }}">
+                <button class="btn-presente">Confirmar Presença</button>
+            </a>
+        </div>
+        {% endfor %}
     {% else %}
-        <span class="presente">✔ Presente confirmado</span>
+        <p>Nenhum agendamento pendente.</p>
     {% endif %}
 </div>
-{% endfor %}
+
+<footer>
+    © UNIFACVEST – Sistema de Agendamento de Provas
+</footer>
 
 </body>
 </html>
