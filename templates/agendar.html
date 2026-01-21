@@ -10,12 +10,20 @@ body {
     background: #f4f4f4;
     padding: 30px;
 }
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 .box {
     background: white;
     max-width: 500px;
-    margin: auto;
+    margin: 20px auto;
     padding: 25px;
     border-radius: 8px;
+}
+img {
+    max-width: 140px;
 }
 input, textarea, button {
     width: 100%;
@@ -31,6 +39,12 @@ button {
 </head>
 
 <body>
+
+<div class="topo">
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    <a href="/logout">Sair</a>
+</div>
+
 <div class="box">
     <h2>Agendamento de Provas</h2>
 
@@ -46,5 +60,6 @@ button {
         <p>{{ msg }}</p>
     {% endif %}
 </div>
+
 </body>
 </html>
