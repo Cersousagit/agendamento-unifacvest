@@ -1,31 +1,48 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
+import sqlite3
 from datetime import datetime
 import os
 
 app = Flask(__name__)
 app.secret_key = "unifacvest123"
 
-# Banco de dados em memória (simples)
-agendamentos = []
+DB_NAME = "database.db"
 
+# ---------------- BANCO ----------------
+def get_db():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# =====================
-# LOGIN
-# =====================
+def criar_banco():
+    conn = get_db()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS agendamentos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT,
+            disciplinas TEXT,
+            data TEXT,
+            hora TEXT,
+            presente INTEGER DEFAULT 0
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+criar_banco()
+
+# ---------------- LOGIN ----------------
 @app.route("/", methods=["GET", "POST"])
 def login():
     erro = None
-
     if request.method == "POST":
-        usuario = request.form.get("usuario")
-        senha = request.form.get("senha")
+        usuario = request.form["usuario"]
+        senha = request.form["senha"]
 
-        # ADMIN
         if usuario == "admin" and senha == "Admin123":
             session["perfil"] = "admin"
             return redirect("/admin")
 
-        # ALUNO
         elif senha == "Aluno123":
             session["perfil"] = "aluno"
             return redirect("/agendar")
@@ -35,81 +52,67 @@ def login():
 
     return render_template("login.html", erro=erro)
 
-
-# =====================
-# AGENDAMENTO (ALUNO)
-# =====================
+# ---------------- AGENDAR ----------------
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     if session.get("perfil") != "aluno":
         return redirect("/")
 
-    msg = None
-
+    msg = ""
     if request.method == "POST":
-        agendamentos.append({
-            "nome": request.form["nome"],
-            "disciplinas": request.form["disciplinas"],
-            "data": request.form["data"],
-            "hora": request.form["hora"],
-            "presente": False
-        })
+        conn = get_db()
+        conn.execute("""
+            INSERT INTO agendamentos (nome, disciplinas, data, hora)
+            VALUES (?, ?, ?, ?)
+        """, (
+            request.form["nome"],
+            request.form["disciplinas"],
+            request.form["data"],
+            request.form["hora"]
+        ))
+        conn.commit()
+        conn.close()
         msg = "Agendamento realizado com sucesso!"
 
     return render_template("agendar.html", msg=msg)
 
-
-# =====================
-# ADMIN / POLO
-# =====================
+# ---------------- ADMIN ----------------
 @app.route("/admin")
 def admin():
     if session.get("perfil") != "admin":
         return redirect("/")
 
     hoje = datetime.now().strftime("%Y-%m-%d")
-    ativos = []
+    conn = get_db()
+    agendamentos = conn.execute("""
+        SELECT * FROM agendamentos
+        WHERE data >= ?
+        ORDER BY data, hora
+    """, (hoje,)).fetchall()
+    conn.close()
 
-    for i, a in enumerate(agendamentos):
-        if a["data"] >= hoje:
-            ativos.append({
-                "index": i,
-                "nome": a["nome"],
-                "disciplinas": a["disciplinas"],
-                "data": a["data"],
-                "hora": a["hora"],
-                "presente": a["presente"]
-            })
+    return render_template("admin.html", agendamentos=agendamentos)
 
-    return render_template("admin.html", agendamentos=ativos)
-
-
-# =====================
-# MARCAR PRESENÇA
-# =====================
-@app.route("/presente/<int:index>")
-def marcar_presenca(index):
+# ---------------- PRESENÇA ----------------
+@app.route("/presenca/<int:id>")
+def presenca(id):
     if session.get("perfil") != "admin":
         return redirect("/")
 
-    if index < len(agendamentos):
-        agendamentos[index]["presente"] = True
+    conn = get_db()
+    conn.execute("UPDATE agendamentos SET presente = 1 WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
 
     return redirect("/admin")
 
-
-# =====================
-# LOGOUT
-# =====================
+# ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-
-# =====================
-# START APP (RENDER)
-# =====================
+# ---------------- START ----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
