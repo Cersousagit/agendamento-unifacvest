@@ -15,6 +15,9 @@ body {
     justify-content: space-between;
     align-items: center;
 }
+.topo img {
+    max-width: 140px;
+}
 .card {
     background: white;
     padding: 15px;
@@ -23,10 +26,6 @@ body {
 }
 .presente {
     color: green;
-    font-weight: bold;
-}
-.ausente {
-    color: red;
     font-weight: bold;
 }
 button {
@@ -41,15 +40,11 @@ button {
 <body>
 
 <div class="topo">
-    <h2>Área Administrativa - UNIFACVEST</h2>
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
     <a href="/logout">Sair</a>
 </div>
 
-<form method="POST">
-    <input type="date" name="data" value="{{ data_filtro }}">
-    <button type="submit">Filtrar</button>
-</form>
-<br>
+<h2>Área Administrativa</h2>
 
 {% for a in agendamentos %}
 <div class="card">
@@ -60,7 +55,6 @@ button {
     {% if a.presente == 1 %}
         <span class="presente">✔ Presente</span>
     {% else %}
-        <span class="ausente">Ausente</span><br><br>
         <a href="/presenca/{{ a.id }}">
             <button>Marcar Presença</button>
         </a>
