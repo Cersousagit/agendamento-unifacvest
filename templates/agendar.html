@@ -5,20 +5,30 @@
     <title>Agendamento - UNIFACVEST</title>
     <style>
         body {
-            font-family: Arial;
-            background: #f4f4f4;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+        }
+        .topo {
+            background: #8b0000;
+            padding: 10px;
+            text-align: right;
+        }
+        .topo a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
         }
         .box {
             background: white;
-            width: 400px;
-            margin: 40px auto;
+            width: 420px;
+            margin: 30px auto;
             padding: 25px;
             border-radius: 10px;
             text-align: center;
         }
         img {
             max-width: 160px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         h3 {
             color: #8b0000;
@@ -32,6 +42,7 @@
             background: #8b0000;
             color: white;
             border: none;
+            cursor: pointer;
         }
         .msg {
             color: green;
@@ -40,6 +51,10 @@
     </style>
 </head>
 <body>
+
+<div class="topo">
+    <a href="/logout">Sair</a>
+</div>
 
 <div class="box">
     <img src="{{ url_for('static', filename='unifacvest.png') }}">
