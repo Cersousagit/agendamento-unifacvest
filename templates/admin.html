@@ -5,69 +5,80 @@
     <title>Admin - UNIFACVEST</title>
     <style>
         body {
-            font-family: Arial;
-            background: #f4f4f4;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
         }
-        header {
+        .topo {
+            background: #8b0000;
+            color: white;
+            padding: 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        img {
-            max-width: 150px;
+        .topo img {
+            max-width: 140px;
         }
-        h2 {
-            color: #8b0000;
+        .topo a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 15px;
         }
         .card {
             background: white;
             padding: 15px;
-            margin-top: 15px;
             border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .card strong {
+            font-size: 16px;
         }
         button {
             background: green;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 6px 14px;
             cursor: pointer;
+            border-radius: 4px;
         }
         .ok {
             color: green;
             font-weight: bold;
         }
-        a {
-            color: #8b0000;
-            text-decoration: none;
-        }
     </style>
 </head>
 <body>
 
-<header>
+<div class="topo">
     <img src="{{ url_for('static', filename='unifacvest.png') }}">
-    <div>
-        <h2>Área do Polo</h2>
-        <a href="/logout">Sair</a>
-    </div>
-</header>
-
-{% for a in agendamentos %}
-<div class="card">
-    <strong>{{ a.nome }}</strong><br>
-    Disciplinas: {{ a.disciplinas }}<br>
-    Data: {{ a.data }} | Hora: {{ a.hora }}<br><br>
-
-    {% if not a.presente %}
-        <a href="/presente/{{ a.index }}">
-            <button>Presente</button>
-        </a>
-    {% else %}
-        <span class="ok">✔ Presença confirmada</span>
-    {% endif %}
+    <a href="/logout">Sair</a>
 </div>
-{% endfor %}
+
+<div class="container">
+    <h2>Área do Polo - UNIFACVEST</h2>
+
+    {% for a in agendamentos %}
+    <div class="card">
+        <strong>{{ a.nome }}</strong><br>
+        Disciplinas: {{ a.disciplinas }}<br>
+        Data: {{ a.data }} | Hora: {{ a.hora }}<br><br>
+
+        {% if not a.presente %}
+            <a href="/presente/{{ a.index }}">
+                <button>Presente</button>
+            </a>
+        {% else %}
+            <span class="ok">✔ Presença confirmada</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
 
 </body>
 </html>
