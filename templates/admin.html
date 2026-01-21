@@ -3,20 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin - UNIFACVEST</title>
+
 <style>
-body { font-family: Arial; background:#f4f4f4; padding:20px; }
-.topo { display:flex; justify-content:space-between; align-items:center; }
-.card {
-    background:white; padding:15px; margin:10px 0;
-    border-radius:6px; box-shadow:0 0 5px #ccc;
+body {
+    font-family: Arial;
+    background: #f4f4f4;
+    padding: 20px;
 }
-.presente { color:green; font-weight:bold; }
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+.presente {
+    color: green;
+    font-weight: bold;
+}
+.ausente {
+    color: red;
+    font-weight: bold;
+}
 button {
-    background:green; color:white; border:none;
-    padding:6px 10px; cursor:pointer;
+    background: green;
+    color: white;
+    border: none;
+    padding: 6px 12px;
 }
 </style>
 </head>
+
 <body>
 
 <div class="topo">
@@ -24,16 +45,25 @@ button {
     <a href="/logout">Sair</a>
 </div>
 
+<form method="POST">
+    <input type="date" name="data" value="{{ data_filtro }}">
+    <button type="submit">Filtrar</button>
+</form>
+<br>
+
 {% for a in agendamentos %}
 <div class="card">
     <strong>{{ a.nome }}</strong><br>
     Disciplinas: {{ a.disciplinas }}<br>
     Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
-    {% if a.presente == 0 %}
-        <a href="/presenca/{{ a.id }}"><button>Presente</button></a>
+    {% if a.presente == 1 %}
+        <span class="presente">✔ Presente</span>
     {% else %}
-        <span class="presente">✔ Presente confirmado</span>
+        <span class="ausente">Ausente</span><br><br>
+        <a href="/presenca/{{ a.id }}">
+            <button>Marcar Presença</button>
+        </a>
     {% endif %}
 </div>
 {% endfor %}
