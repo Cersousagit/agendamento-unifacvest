@@ -1,25 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>Agendamento</title>
+    <meta charset="UTF-8">
+    <title>Agendamento - UNIFACVEST</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+        }
+        .box {
+            background: white;
+            width: 400px;
+            margin: 40px auto;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        img {
+            max-width: 160px;
+            margin-bottom: 15px;
+        }
+        h3 {
+            color: #8b0000;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        button {
+            background: #8b0000;
+            color: white;
+            border: none;
+        }
+        .msg {
+            color: green;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
 
-<img src="{{ url_for('static', filename='unifacvest.png') }}" width="120">
+<div class="box">
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    <h3>Agendamento de Provas</h3>
 
-<h2>Agendamento de Provas</h2>
+    <form method="POST">
+        <input type="text" name="nome" placeholder="Nome completo" required>
+        <textarea name="disciplinas" placeholder="Disciplinas (uma por linha)" required></textarea>
+        <input type="date" name="data" required>
+        <input type="time" name="hora" required>
+        <button type="submit">Enviar</button>
+    </form>
 
-<form method="POST">
-    <input name="nome" placeholder="Nome completo" required><br>
-    <textarea name="disciplinas" placeholder="Disciplinas"></textarea><br>
-    <input type="date" name="data" required><br>
-    <input type="time" name="hora" required><br>
-    <button>Enviar</button>
-</form>
-
-<p>{{ msg }}</p>
-
-<a href="/logout">Sair</a>
+    {% if msg %}
+        <div class="msg">{{ msg }}</div>
+    {% endif %}
+</div>
 
 </body>
 </html>
