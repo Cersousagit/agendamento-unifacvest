@@ -1,84 +1,42 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin - UNIFACVEST</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            margin: 0;
-        }
-        .topo {
-            background: #8b0000;
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .topo img {
-            max-width: 140px;
-        }
-        .topo a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 0 15px;
-        }
-        .card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-        }
-        .card strong {
-            font-size: 16px;
-        }
-        button {
-            background: green;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .ok {
-            color: green;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Admin - UNIFACVEST</title>
+<style>
+body { font-family: Arial; background:#f4f4f4; padding:20px; }
+.topo { display:flex; justify-content:space-between; align-items:center; }
+.card {
+    background:white; padding:15px; margin:10px 0;
+    border-radius:6px; box-shadow:0 0 5px #ccc;
+}
+.presente { color:green; font-weight:bold; }
+button {
+    background:green; color:white; border:none;
+    padding:6px 10px; cursor:pointer;
+}
+</style>
 </head>
 <body>
 
 <div class="topo">
-    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    <h2>Área Administrativa - UNIFACVEST</h2>
     <a href="/logout">Sair</a>
 </div>
 
-<div class="container">
-    <h2>Área do Polo - UNIFACVEST</h2>
+{% for a in agendamentos %}
+<div class="card">
+    <strong>{{ a.nome }}</strong><br>
+    Disciplinas: {{ a.disciplinas }}<br>
+    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
-    {% for a in agendamentos %}
-    <div class="card">
-        <strong>{{ a.nome }}</strong><br>
-        Disciplinas: {{ a.disciplinas }}<br>
-        Data: {{ a.data }} | Hora: {{ a.hora }}<br><br>
-
-        {% if not a.presente %}
-            <a href="/presente/{{ a.index }}">
-                <button>Presente</button>
-            </a>
-        {% else %}
-            <span class="ok">✔ Presença confirmada</span>
-        {% endif %}
-    </div>
-    {% endfor %}
+    {% if a.presente == 0 %}
+        <a href="/presenca/{{ a.id }}"><button>Presente</button></a>
+    {% else %}
+        <span class="presente">✔ Presente confirmado</span>
+    {% endif %}
 </div>
+{% endfor %}
 
 </body>
 </html>
