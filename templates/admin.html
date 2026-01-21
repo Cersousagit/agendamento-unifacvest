@@ -1,29 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>Admin</title>
+    <meta charset="UTF-8">
+    <title>Admin - UNIFACVEST</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        img {
+            max-width: 150px;
+        }
+        h2 {
+            color: #8b0000;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        button {
+            background: green;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+        }
+        .ok {
+            color: green;
+            font-weight: bold;
+        }
+        a {
+            color: #8b0000;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
 
-<img src="{{ url_for('static', filename='unifacvest.png') }}" width="120">
-<h2>Área Administrativa - UNIFACVEST</h2>
-
-<a href="/logout">Sair</a>
-<hr>
+<header>
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    <div>
+        <h2>Área do Polo</h2>
+        <a href="/logout">Sair</a>
+    </div>
+</header>
 
 {% for a in agendamentos %}
-<div>
+<div class="card">
     <strong>{{ a.nome }}</strong><br>
-    {{ a.disciplinas }}<br>
-    {{ a.data }} - {{ a.hora }}<br>
+    Disciplinas: {{ a.disciplinas }}<br>
+    Data: {{ a.data }} | Hora: {{ a.hora }}<br><br>
 
     {% if not a.presente %}
-        <a href="/presenca/{{ a.index }}">Presente</a>
+        <a href="/presente/{{ a.index }}">
+            <button>Presente</button>
+        </a>
     {% else %}
-        ✔ Presente confirmado
+        <span class="ok">✔ Presença confirmada</span>
     {% endif %}
 </div>
-<hr>
 {% endfor %}
 
 </body>
