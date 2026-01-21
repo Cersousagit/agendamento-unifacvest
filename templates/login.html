@@ -5,7 +5,7 @@
     <title>Login - UNIFACVEST</title>
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             background: #8b0000;
             display: flex;
             justify-content: center;
@@ -15,13 +15,16 @@
         .box {
             background: white;
             padding: 30px;
-            border-radius: 8px;
-            width: 320px;
+            border-radius: 10px;
+            width: 330px;
             text-align: center;
         }
         img {
-            max-width: 150px;
+            max-width: 180px;
             margin-bottom: 15px;
+        }
+        h3 {
+            color: #8b0000;
         }
         input, button {
             width: 100%;
@@ -32,6 +35,7 @@
             background: #8b0000;
             color: white;
             border: none;
+            cursor: pointer;
         }
         .erro {
             color: red;
@@ -43,7 +47,7 @@
 
 <div class="box">
     <img src="{{ url_for('static', filename='unifacvest.png') }}">
-    <h3>Login UNIFACVEST</h3>
+    <h3>Agendamento de Provas</h3>
 
     <form method="POST">
         <input type="text" name="usuario" placeholder="Usuário">
