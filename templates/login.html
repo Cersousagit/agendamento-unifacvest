@@ -1,57 +1,54 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Login - UNIFACVEST</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #8b0000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            width: 330px;
-            text-align: center;
-        }
-        img {
-            max-width: 180px;
-            margin-bottom: 15px;
-        }
-        h3 {
-            color: #8b0000;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-        }
-        button {
-            background: #8b0000;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .erro {
-            color: red;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
+<meta charset="UTF-8">
+<title>Login - UNIFACVEST</title>
 
+<style>
+body {
+    font-family: Arial;
+    background: #8b0000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.box {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 320px;
+    text-align: center;
+}
+img {
+    max-width: 150px;
+    margin-bottom: 15px;
+}
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+button {
+    background: #8b0000;
+    color: white;
+    border: none;
+}
+.erro {
+    color: red;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
 <div class="box">
     <img src="{{ url_for('static', filename='unifacvest.png') }}">
-    <h3>Agendamento de Provas</h3>
+    <h3>Login UNIFACVEST</h3>
 
     <form method="POST">
-        <input type="text" name="usuario" placeholder="Usuário">
-        <input type="password" name="senha" placeholder="Senha">
+        <input type="text" name="usuario" placeholder="Usuário" required>
+        <input type="password" name="senha" placeholder="Senha" required>
         <button type="submit">Entrar</button>
     </form>
 
@@ -59,6 +56,5 @@
         <div class="erro">{{ erro }}</div>
     {% endif %}
 </div>
-
 </body>
 </html>
