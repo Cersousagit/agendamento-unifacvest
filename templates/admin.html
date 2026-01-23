@@ -2,13 +2,10 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Admin - UNIFACVEST</title>
-<style>
-@keyframes fadeCard {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+<title>Dashboard - UNIFACVEST</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<style>
 body {
     font-family: Arial;
     background: #f4f4f4;
@@ -17,7 +14,6 @@ body {
 header {
     background: white;
     padding: 10px;
-    animation: fadeCard 0.6s ease;
 }
 
 header img {
@@ -31,11 +27,20 @@ header img {
     padding: 6px 12px;
     text-decoration: none;
     border-radius: 4px;
-    transition: 0.3s;
 }
 
-.sair:hover {
-    background: #a80000;
+.dashboard {
+    display: flex;
+    gap: 15px;
+    margin: 20px;
+}
+
+.box {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    flex: 1;
+    text-align: center;
 }
 
 .card {
@@ -43,12 +48,6 @@ header img {
     margin: 15px;
     padding: 15px;
     border-radius: 6px;
-    animation: fadeCard 0.8s ease;
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: scale(1.02);
 }
 
 button {
@@ -56,12 +55,6 @@ button {
     color: white;
     border: none;
     padding: 6px 10px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-button:hover {
-    background: darkgreen;
 }
 
 .presente {
@@ -77,6 +70,32 @@ button:hover {
     <img src="{{ url_for('static', filename='unifacvest.png') }}">
 </header>
 
+<!-- DASHBOARD -->
+<div class="dashboard">
+    <div class="box">
+        <h3>Total</h3>
+        <h2>{{ total }}</h2>
+    </div>
+    <div class="box">
+        <h3>Presentes</h3>
+        <h2>{{ presentes }}</h2>
+    </div>
+    <div class="box">
+        <h3>Pendentes</h3>
+        <h2>{{ pendentes }}</h2>
+    </div>
+</div>
+
+<div class="dashboard">
+    <div class="box">
+        <canvas id="graficoPresenca"></canvas>
+    </div>
+    <div class="box">
+        <canvas id="graficoDatas"></canvas>
+    </div>
+</div>
+
+<!-- LISTA -->
 {% for a in agendamentos %}
 <div class="card">
     <strong>{{ a.nome }}</strong><br>
@@ -92,6 +111,31 @@ button:hover {
     {% endif %}
 </div>
 {% endfor %}
+
+<script>
+new Chart(document.getElementById('graficoPresenca'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Presentes', 'Pendentes'],
+        datasets: [{
+            data: [{{ presentes }}, {{ pendentes }}],
+            backgroundColor: ['green', 'red']
+        }]
+    }
+});
+
+new Chart(document.getElementById('graficoDatas'), {
+    type: 'bar',
+    data: {
+        labels: {{ datas | safe }},
+        datasets: [{
+            label: 'Provas por Data',
+            data: {{ qtd_datas | safe }},
+            backgroundColor: '#8b0000'
+        }]
+    }
+});
+</script>
 
 </body>
 </html>
