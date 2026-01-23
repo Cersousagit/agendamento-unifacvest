@@ -6,61 +6,92 @@
 
 <style>
 body {
-    font-family: Arial;
-    background: #f4f4f4;
-    padding: 20px;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
 }
-.topo {
+
+/* TOPO */
+.header {
+    background: #8b0000;
+    color: white;
+    padding: 15px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.topo img {
-    max-width: 140px;
+.header img {
+    height: 50px;
 }
+.logout {
+    background: white;
+    color: #8b0000;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* CONTEÚDO */
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+}
+
 .card {
     background: white;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
+
+.card strong {
+    font-size: 18px;
+}
+
 .presente {
     color: green;
     font-weight: bold;
 }
+
 button {
     background: green;
     color: white;
     border: none;
-    padding: 6px 12px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<div class="topo">
+<div class="header">
     <img src="{{ url_for('static', filename='unifacvest.png') }}">
-    <a href="/logout">Sair</a>
+    <a class="logout" href="/logout">Sair</a>
 </div>
 
-<h2>Área Administrativa</h2>
+<div class="container">
+    <h2 style="color:#8b0000;">Área Administrativa</h2>
 
-{% for a in agendamentos %}
-<div class="card">
-    <strong>{{ a.nome }}</strong><br>
-    Disciplinas: {{ a.disciplinas }}<br>
-    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
+    {% for a in agendamentos %}
+    <div class="card">
+        <strong>{{ a.nome }}</strong><br><br>
+        Disciplinas: {{ a.disciplinas }}<br>
+        Data: {{ a.data }} | Hora: {{ a.hora }}<br><br>
 
-    {% if a.presente == 1 %}
-        <span class="presente">✔ Presente</span>
-    {% else %}
-        <a href="/presenca/{{ a.id }}">
-            <button>Marcar Presença</button>
-        </a>
-    {% endif %}
+        {% if a.presente %}
+            <span class="presente">✔ Presente confirmado</span>
+        {% else %}
+            <a href="/presenca/{{ a.index }}">
+                <button>Marcar Presença</button>
+            </a>
+        {% endif %}
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}
 
 </body>
 </html>
