@@ -7,7 +7,7 @@ app = Flask(__name__)
 agendamentos = []
 contador_id = itertools.count(1)
 
-# Dados iniciais
+# Registro inicial
 agendamentos.append({
     "id": next(contador_id),
     "nome": "Marcos Aurelio",
@@ -23,10 +23,8 @@ def index():
 
 @app.route("/admin")
 def admin():
-    # Total de presentes
     total_presentes = sum(1 for a in agendamentos if a["presente"])
 
-    # Dados para gráfico
     datas = []
     quantidades = []
 
@@ -35,8 +33,8 @@ def admin():
             datas.append(a["data"])
             quantidades.append(1)
         else:
-            idx = datas.index(a["data"])
-            quantidades[idx] += 1
+            i = datas.index(a["data"])
+            quantidades[i] += 1
 
     return render_template(
         "admin.html",
