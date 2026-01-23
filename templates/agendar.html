@@ -2,16 +2,32 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Agendamento</title>
+<title>Agendamento - UNIFACVEST</title>
 <style>
 body {
     font-family: Arial;
-    background: #f2f2f2;
+    background: #f4f4f4;
 }
-.container {
+.topo {
     background: white;
-    width: 400px;
-    margin: 40px auto;
+    padding: 10px;
+    text-align: center;
+}
+.topo img {
+    width: 140px;
+}
+.sair {
+    float: right;
+    background: #8b0000;
+    color: white;
+    padding: 6px 12px;
+    text-decoration: none;
+    border-radius: 4px;
+}
+.box {
+    background: white;
+    width: 380px;
+    margin: 30px auto;
     padding: 20px;
     border-radius: 8px;
 }
@@ -25,17 +41,16 @@ button {
     color: white;
     border: none;
 }
-a {
-    display: block;
-    text-align: right;
-    margin-bottom: 10px;
-}
 </style>
 </head>
 <body>
 
-<div class="container">
-    <a href="/logout">Sair</a>
+<div class="topo">
+    <a class="sair" href="/logout">Sair</a>
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+</div>
+
+<div class="box">
     <h3>Agendamento de Provas</h3>
 
     <form method="POST">
