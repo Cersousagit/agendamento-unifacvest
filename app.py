@@ -16,24 +16,22 @@ def login():
         usuario = request.form.get("usuario", "").strip()
         senha = request.form.get("senha", "").strip()
 
-        # ADMIN / POLO
         if usuario == "admin" and senha == "admin123":
             session["perfil"] = "admin"
             return redirect("/admin")
 
-        # ALUNO
         elif usuario != "" and senha == "aluno123":
             session["perfil"] = "aluno"
-            session["nome_aluno"] = usuario
+            session["nome"] = usuario
             return redirect("/agendar")
 
         else:
-            erro = "Credenciais inválidas"
+            erro = "Usuário ou senha inválidos"
 
     return render_template("login.html", erro=erro)
 
 
-# ================= AGENDAMENTO ALUNO =================
+# ================= AGENDAR =================
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     if session.get("perfil") != "aluno":
@@ -42,14 +40,13 @@ def agendar():
     msg = ""
 
     if request.method == "POST":
-        nome = request.form.get("nome", "").strip()
-        disciplinas = request.form.get("disciplinas", "").strip()
-        data = request.form.get("data", "").strip()
-        hora = request.form.get("hora", "").strip()
+        nome = request.form.get("nome")
+        disciplinas = request.form.get("disciplinas")
+        data = request.form.get("data")
+        hora = request.form.get("hora")
 
-        # VALIDAÇÃO OBRIGATÓRIA
         if not nome or not disciplinas or not data or not hora:
-            msg = "❌ Todos os campos são obrigatórios"
+            msg = "❌ Preencha todos os campos"
         else:
             agendamentos.append({
                 "nome": nome,
@@ -88,7 +85,7 @@ def admin():
 
 # ================= PRESENÇA =================
 @app.route("/presenca/<int:index>")
-def marcar_presenca(index):
+def presenca(index):
     if session.get("perfil") != "admin":
         return redirect("/")
 
