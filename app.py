@@ -1,125 +1,58 @@
-from flask import Flask, render_template, request, redirect, session
-from datetime import datetime
-import os
-from collections import Counter
+from flask import Flask, render_template, redirect, url_for
+from datetime import date
+import itertools
 
 app = Flask(__name__)
-app.secret_key = "unifacvest123"
 
+# Banco fake (simples e funcional)
 agendamentos = []
+contador_id = itertools.count(1)
 
-# ================= LOGIN =================
-@app.route("/", methods=["GET", "POST"])
-def login():
-    erro = None
-    if request.method == "POST":
-        usuario = request.form["usuario"].strip()
-        senha = request.form["senha"].strip()
+# Dados iniciais de teste
+agendamentos.append({
+    "id": next(contador_id),
+    "nome": "Marcos Aurelio",
+    "disciplinas": "1,2,3",
+    "data": "2026-02-05",
+    "hora": "11:00",
+    "presente": False
+})
 
-        if usuario == "admin" and senha == "admin123":
-            session["perfil"] = "admin"
-            return redirect("/admin")
-
-        elif usuario != "" and senha == "aluno123":
-            session["perfil"] = "aluno"
-            return redirect("/agendar")
-
-        else:
-            erro = "Usuário ou senha inválidos"
-
-    return render_template("login.html", erro=erro)
-
-
-# ================= AGENDAR =================
-@app.route("/agendar", methods=["GET", "POST"])
-def agendar():
-    if session.get("perfil") != "aluno":
-        return redirect("/")
-
-    msg = ""
-    if request.method == "POST":
-        nome = request.form["nome"]
-        disciplinas = request.form["disciplinas"]
-        data = request.form["data"]
-        hora = request.form["hora"]
-
-        if not nome or not disciplinas or not data or not hora:
-            msg = "❌ Preencha todos os campos"
-        else:
-            agendamentos.append({
-                "nome": nome,
-                "disciplinas": disciplinas,
-                "data": data,
-                "hora": hora,
-                "presente": False
-            })
-            msg = "✅ Agendamento realizado com sucesso!"
-
-    return render_template("agendar.html", msg=msg)
-
-
-# ================= ADMIN + DASHBOARD =================
 @app.route("/admin")
 def admin():
-    if session.get("perfil") != "admin":
-        return redirect("/")
+    # Gráficos
+    total_presentes = sum(1 for a in agendamentos if a["presente"])
 
-    hoje = datetime.now().strftime("%Y-%m-%d")
-
-    ativos = []
     datas = []
-    presentes = 0
-    pendentes = 0
+    quantidades = []
 
-    for i, a in enumerate(agendamentos):
-        if a["data"] >= hoje:
-            ativos.append({
-                "index": i,
-                "nome": a["nome"],
-                "disciplinas": a["disciplinas"],
-                "data": a["data"],
-                "hora": a["hora"],
-                "presente": a["presente"]
-            })
-
+    for a in agendamentos:
+        if a["data"] not in datas:
             datas.append(a["data"])
-            if a["presente"]:
-                presentes += 1
-            else:
-                pendentes += 1
-
-    contador_datas = Counter(datas)
+            quantidades.append(1)
+        else:
+            idx = datas.index(a["data"])
+            quantidades[idx] += 1
 
     return render_template(
         "admin.html",
-        agendamentos=ativos,
-        total=len(ativos),
-        presentes=presentes,
-        pendentes=pendentes,
-        datas=list(contador_datas.keys()),
-        qtd_datas=list(contador_datas.values())
+        agendamentos=agendamentos,
+        total_presentes=total_presentes,
+        datas=datas,
+        quantidades=quantidades
     )
 
+@app.route("/presenca/<int:id>")
+def presenca(id):
+    for a in agendamentos:
+        if a["id"] == id:
+            a["presente"] = True
+            break
+    return redirect(url_for("admin"))
 
-# ================= PRESENÇA =================
-@app.route("/presenca/<int:index>")
-def presenca(index):
-    if session.get("perfil") != "admin":
-        return redirect("/")
-
-    if index < len(agendamentos):
-        agendamentos[index]["presente"] = True
-
-    return redirect("/admin")
-
-
-# ================= LOGOUT =================
 @app.route("/logout")
 def logout():
-    session.clear()
     return redirect("/")
 
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
