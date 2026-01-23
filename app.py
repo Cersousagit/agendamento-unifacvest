@@ -1,14 +1,13 @@
 from flask import Flask, render_template, redirect, url_for
-from datetime import date
 import itertools
 
 app = Flask(__name__)
 
-# Banco fake (simples e funcional)
+# Banco fake
 agendamentos = []
 contador_id = itertools.count(1)
 
-# Dados iniciais de teste
+# Dados iniciais
 agendamentos.append({
     "id": next(contador_id),
     "nome": "Marcos Aurelio",
@@ -18,11 +17,16 @@ agendamentos.append({
     "presente": False
 })
 
+@app.route("/")
+def index():
+    return redirect(url_for("admin"))
+
 @app.route("/admin")
 def admin():
-    # Gráficos
+    # Total de presentes
     total_presentes = sum(1 for a in agendamentos if a["presente"])
 
+    # Dados para gráfico
     datas = []
     quantidades = []
 
@@ -52,7 +56,7 @@ def presenca(id):
 
 @app.route("/logout")
 def logout():
-    return redirect("/")
+    return redirect(url_for("index"))
 
 if __name__ == "__main__":
     app.run(debug=True)
