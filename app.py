@@ -1,35 +1,13 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session
 from datetime import datetime
-import sqlite3
 import os
 
 app = Flask(__name__)
 app.secret_key = "unifacvest123"
 
-# ===================== BANCO =====================
-def get_db():
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+agendamentos = []
 
-def init_db():
-    conn = get_db()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS agendamentos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT,
-            disciplinas TEXT,
-            data TEXT,
-            hora TEXT,
-            presente INTEGER DEFAULT 0
-        )
-    """)
-    conn.commit()
-    conn.close()
-
-init_db()
-
-# ===================== LOGIN =====================
+# LOGIN
 @app.route("/", methods=["GET", "POST"])
 def login():
     erro = None
@@ -51,82 +29,69 @@ def login():
 
     return render_template("login.html", erro=erro)
 
-# ===================== AGENDAR =====================
+
+# ALUNO
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     if session.get("perfil") != "aluno":
         return redirect("/")
 
     msg = ""
-
     if request.method == "POST":
-        conn = get_db()
-        conn.execute("""
-            INSERT INTO agendamentos (nome, disciplinas, data, hora)
-            VALUES (?, ?, ?, ?)
-        """, (
-            request.form["nome"],
-            request.form["disciplinas"],
-            request.form["data"],
-            request.form["hora"]
-        ))
-        conn.commit()
-        conn.close()
-
+        agendamentos.append({
+            "nome": request.form["nome"],
+            "disciplinas": request.form["disciplinas"],
+            "data": request.form["data"],
+            "hora": request.form["hora"],
+            "presente": False
+        })
         msg = "Agendamento realizado com sucesso!"
 
     return render_template("agendar.html", msg=msg)
 
-# ===================== ADMIN =====================
-@app.route("/admin", methods=["GET", "POST"])
+
+# ADMIN
+@app.route("/admin")
 def admin():
     if session.get("perfil") != "admin":
         return redirect("/")
 
-    data_filtro = request.form.get("data")
-    conn = get_db()
+    hoje = datetime.now().strftime("%Y-%m-%d")
+    ativos = []
 
-    if data_filtro:
-        agendamentos = conn.execute(
-            "SELECT * FROM agendamentos WHERE data = ? ORDER BY hora",
-            (data_filtro,)
-        ).fetchall()
-    else:
-        agendamentos = conn.execute(
-            "SELECT * FROM agendamentos ORDER BY data, hora"
-        ).fetchall()
+    for i, a in enumerate(agendamentos):
+        if a["data"] >= hoje:
+            ativos.append({
+                "index": i,
+                "nome": a["nome"],
+                "disciplinas": a["disciplinas"],
+                "data": a["data"],
+                "hora": a["hora"],
+                "presente": a["presente"]
+            })
 
-    conn.close()
+    return render_template("admin.html", agendamentos=ativos)
 
-    return render_template(
-        "admin.html",
-        agendamentos=agendamentos,
-        data_filtro=data_filtro
-    )
 
-# ===================== PRESENÇA =====================
-@app.route("/presenca/<int:id>")
-def presenca(id):
+# ✅ MARCAR PRESENÇA (ROTA CORRETA)
+@app.route("/presenca/<int:index>")
+def marcar_presenca(index):
     if session.get("perfil") != "admin":
         return redirect("/")
 
-    conn = get_db()
-    conn.execute(
-        "UPDATE agendamentos SET presente = 1 WHERE id = ?",
-        (id,)
-    )
-    conn.commit()
-    conn.close()
+    if index < len(agendamentos):
+        agendamentos[index]["presente"] = True
 
     return redirect("/admin")
 
-# ===================== LOGOUT =====================
+
+# LOGOUT
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-# ===================== RUN =====================
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
