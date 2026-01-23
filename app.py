@@ -7,50 +7,63 @@ app.secret_key = "unifacvest123"
 
 agendamentos = []
 
-# LOGIN
+# ================= LOGIN =================
 @app.route("/", methods=["GET", "POST"])
 def login():
     erro = None
 
     if request.method == "POST":
-        usuario = request.form["usuario"]
-        senha = request.form["senha"]
+        usuario = request.form.get("usuario", "").strip()
+        senha = request.form.get("senha", "").strip()
 
-        if usuario == "admin" and senha == "Admin123":
+        # ADMIN / POLO
+        if usuario == "admin" and senha == "admin123":
             session["perfil"] = "admin"
             return redirect("/admin")
 
-        elif senha == "Aluno123":
+        # ALUNO
+        elif usuario != "" and senha == "aluno123":
             session["perfil"] = "aluno"
+            session["nome_aluno"] = usuario
             return redirect("/agendar")
 
         else:
-            erro = "Usuário ou senha inválidos"
+            erro = "Credenciais inválidas"
 
     return render_template("login.html", erro=erro)
 
 
-# ALUNO
+# ================= AGENDAMENTO ALUNO =================
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     if session.get("perfil") != "aluno":
         return redirect("/")
 
     msg = ""
+
     if request.method == "POST":
-        agendamentos.append({
-            "nome": request.form["nome"],
-            "disciplinas": request.form["disciplinas"],
-            "data": request.form["data"],
-            "hora": request.form["hora"],
-            "presente": False
-        })
-        msg = "Agendamento realizado com sucesso!"
+        nome = request.form.get("nome", "").strip()
+        disciplinas = request.form.get("disciplinas", "").strip()
+        data = request.form.get("data", "").strip()
+        hora = request.form.get("hora", "").strip()
+
+        # VALIDAÇÃO OBRIGATÓRIA
+        if not nome or not disciplinas or not data or not hora:
+            msg = "❌ Todos os campos são obrigatórios"
+        else:
+            agendamentos.append({
+                "nome": nome,
+                "disciplinas": disciplinas,
+                "data": data,
+                "hora": hora,
+                "presente": False
+            })
+            msg = "✅ Agendamento realizado com sucesso!"
 
     return render_template("agendar.html", msg=msg)
 
 
-# ADMIN
+# ================= ADMIN =================
 @app.route("/admin")
 def admin():
     if session.get("perfil") != "admin":
@@ -73,7 +86,7 @@ def admin():
     return render_template("admin.html", agendamentos=ativos)
 
 
-# ✅ MARCAR PRESENÇA (ROTA CORRETA)
+# ================= PRESENÇA =================
 @app.route("/presenca/<int:index>")
 def marcar_presenca(index):
     if session.get("perfil") != "admin":
@@ -85,7 +98,7 @@ def marcar_presenca(index):
     return redirect("/admin")
 
 
-# LOGOUT
+# ================= LOGOUT =================
 @app.route("/logout")
 def logout():
     session.clear()
