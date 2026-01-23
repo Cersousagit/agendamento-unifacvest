@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, redirect, session
 from datetime import datetime
 import os
+from collections import Counter
 
 app = Flask(__name__)
 app.secret_key = "unifacvest123"
 
 agendamentos = []
 
+# ================= LOGIN =================
 @app.route("/", methods=["GET", "POST"])
 def login():
     erro = None
@@ -20,7 +22,6 @@ def login():
 
         elif usuario != "" and senha == "aluno123":
             session["perfil"] = "aluno"
-            session["nome"] = usuario
             return redirect("/agendar")
 
         else:
@@ -29,6 +30,7 @@ def login():
     return render_template("login.html", erro=erro)
 
 
+# ================= AGENDAR =================
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     if session.get("perfil") != "aluno":
@@ -56,13 +58,18 @@ def agendar():
     return render_template("agendar.html", msg=msg)
 
 
+# ================= ADMIN + DASHBOARD =================
 @app.route("/admin")
 def admin():
     if session.get("perfil") != "admin":
         return redirect("/")
 
     hoje = datetime.now().strftime("%Y-%m-%d")
+
     ativos = []
+    datas = []
+    presentes = 0
+    pendentes = 0
 
     for i, a in enumerate(agendamentos):
         if a["data"] >= hoje:
@@ -75,9 +82,26 @@ def admin():
                 "presente": a["presente"]
             })
 
-    return render_template("admin.html", agendamentos=ativos)
+            datas.append(a["data"])
+            if a["presente"]:
+                presentes += 1
+            else:
+                pendentes += 1
+
+    contador_datas = Counter(datas)
+
+    return render_template(
+        "admin.html",
+        agendamentos=ativos,
+        total=len(ativos),
+        presentes=presentes,
+        pendentes=pendentes,
+        datas=list(contador_datas.keys()),
+        qtd_datas=list(contador_datas.values())
+    )
 
 
+# ================= PRESENÇA =================
 @app.route("/presenca/<int:index>")
 def presenca(index):
     if session.get("perfil") != "admin":
@@ -89,6 +113,7 @@ def presenca(index):
     return redirect("/admin")
 
 
+# ================= LOGOUT =================
 @app.route("/logout")
 def logout():
     session.clear()
