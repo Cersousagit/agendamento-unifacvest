@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Login - UNIFACVEST</title>
-
 <style>
 body {
-    font-family: Arial;
     background: #8b0000;
+    font-family: Arial;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,7 +20,7 @@ body {
     text-align: center;
 }
 img {
-    max-width: 160px;
+    width: 150px;
     margin-bottom: 15px;
 }
 input, button {
@@ -40,15 +39,15 @@ button {
 }
 </style>
 </head>
-
 <body>
+
 <div class="box">
     <img src="{{ url_for('static', filename='unifacvest.png') }}">
     <h3>Login UNIFACVEST</h3>
 
     <form method="POST">
-        <input type="text" name="usuario" placeholder="Usuário">
-        <input type="password" name="senha" placeholder="Senha">
+        <input type="text" name="usuario" placeholder="Nome completo ou admin" required>
+        <input type="password" name="senha" placeholder="Senha" required>
         <button type="submit">Entrar</button>
     </form>
 
@@ -56,5 +55,6 @@ button {
         <div class="erro">{{ erro }}</div>
     {% endif %}
 </div>
+
 </body>
 </html>
