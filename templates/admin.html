@@ -5,7 +5,7 @@
 </head>
 <body>
 
-<img src="/static/unifacvest.png" width="180">
+<img src="{{ url_for('static', filename='unifacvest.png') }}" width="180">
 
 <h2>Provas Agendadas</h2>
 
@@ -16,9 +16,9 @@
     Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
     {% if not a.presente %}
-       <a href="{{ url_for('presenca', id=a.id) }}" class="btn btn-success">
-    Presente
-</a>
+        <a href="{{ url_for('presenca', id=a.id) }}">
+            <button style="background:green;color:white;">Presente</button>
+        </a>
     {% else %}
         <span style="color:green;">✔ Presente</span>
     {% endif %}
