@@ -1,58 +1,71 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Painel Administrativo - UNIFACVEST</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<title>Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family:Arial; background:#f2f4f8; }
+header {
+    background:#003366;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+header img { height:45px; }
+a { background:#c62828; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; }
+.card {
+    background:white;
+    margin:15px;
+    padding:15px;
+    border-radius:8px;
+}
+.btn {
+    background:green;
+    color:white;
+    padding:6px 10px;
+    text-decoration:none;
+    border-radius:5px;
+}
+.ok { color:green; font-weight:bold; }
+.dashboard { margin:30px; background:white; padding:20px; border-radius:8px; }
+</style>
 </head>
 <body>
 
-<header class="topo">
-    <img src="{{ url_for('static', filename='unifacvest.png') }}" class="logo">
-    <a href="/logout" class="btn-sair">Sair</a>
+<header>
+<img src="{{ url_for('static', filename='unifacvest.png') }}">
+<a href="/logout">Sair</a>
 </header>
 
-<div class="container">
+{% for a in agendamentos %}
+<div class="card">
+<strong>{{ a.nome }}</strong><br>
+{{ a.disciplinas }}<br>
+{{ a.data }} - {{ a.hora }}<br>
 
-    {% for a in agendamentos %}
-    <div class="card">
-        <h3>{{ a.nome }}</h3>
-        <p><strong>Disciplinas:</strong> {{ a.disciplinas }}</p>
-        <p><strong>Data:</strong> {{ a.data }} | <strong>Hora:</strong> {{ a.hora }}</p>
+{% if not a.presente %}
+<a class="btn" href="/presenca/{{ a.id }}">Presente</a>
+{% else %}
+<span class="ok">✔ Presente</span>
+{% endif %}
+</div>
+{% endfor %}
 
-        {% if not a.presente %}
-            <a href="/presenca/{{ a.id }}" class="btn-presente">Presente</a>
-        {% else %}
-            <span class="presente-ok">✔ Presente</span>
-        {% endif %}
-    </div>
-    {% endfor %}
-
-    <div class="dashboard">
-        <div class="box">
-            <h4>Total de Presenças</h4>
-            <p class="numero">{{ total_presentes }}</p>
-        </div>
-
-        <div class="box">
-            <canvas id="grafico"></canvas>
-        </div>
-    </div>
-
+<div class="dashboard">
+<h3>Dashboard</h3>
+<p>Total de presentes: {{ total_presentes }}</p>
+<canvas id="grafico"></canvas>
 </div>
 
 <script>
-const ctx = document.getElementById('grafico');
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: {{ datas|tojson }},
-        datasets: [{
-            label: 'Agendamentos por Data',
-            data: {{ quantidades|tojson }},
-        }]
-    }
+new Chart(document.getElementById("grafico"), {
+type:"bar",
+data:{
+labels: {{ datas|tojson }},
+datasets:[{ label:"Agendamentos", data: {{ quantidades|tojson }} }]
+}
 });
 </script>
 
