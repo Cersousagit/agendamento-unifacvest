@@ -2,7 +2,8 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Agendamento</title>
+<title>Agendamento de Provas</title>
+
 <style>
 body { font-family:Arial; background:#f4f6f8; }
 header {
@@ -15,6 +16,7 @@ header {
 }
 header img { height:45px; }
 a { color:white; text-decoration:none; background:#c62828; padding:8px 12px; border-radius:5px; }
+
 form {
     background:white;
     width:400px;
@@ -22,11 +24,13 @@ form {
     padding:20px;
     border-radius:8px;
 }
+
 input,button {
     width:100%;
     padding:10px;
     margin-top:10px;
 }
+
 button {
     background:#003366;
     color:white;
@@ -34,20 +38,23 @@ button {
 }
 </style>
 </head>
+
 <body>
 
 <header>
-<img src="{{ url_for('static', filename='unifacvest.png') }}">
-<a href="/logout">Sair</a>
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    <a href="/logout">Sair</a>
 </header>
 
 <form method="POST">
-<h3>Agendamento de Provas</h3>
-<input type="text" name="disciplinas" placeholder="Disciplinas" required>
-<input type="date" name="data" required>
-<input type="time" name="hora" required>
-<button type="submit">Enviar</button>
-{% if msg %}<p>{{ msg }}</p>{% endif %}
+    <h3>Agendamento de Provas</h3>
+
+    <input type="text" name="nome" placeholder="Nome Completo do Aluno" required>
+    <input type="text" name="disciplinas" placeholder="Disciplinas" required>
+    <input type="date" name="data" required>
+    <input type="time" name="hora" required>
+
+    <button type="submit">Enviar</button>
 </form>
 
 </body>
