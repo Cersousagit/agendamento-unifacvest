@@ -16,9 +16,9 @@
     Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
     {% if not a.presente %}
-        <a href="{{ url_for('presenca', id=a.id) }}">
-            <button style="background:green;color:white;">Presente</button>
-        </a>
+       <a href="{{ url_for('presenca', id=a.id) }}" class="btn btn-success">
+    Presente
+</a>
     {% else %}
         <span style="color:green;">✔ Presente</span>
     {% endif %}
