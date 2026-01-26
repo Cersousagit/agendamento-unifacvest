@@ -16,27 +16,26 @@ def fazer_login():
     senha = request.form["senha"]
 
     if usuario == "admin" and senha == "admin123":
-        return redirect("/admin")
+        return redirect(url_for("admin"))
     elif senha == "aluno123":
-        return redirect("/aluno")
+        return redirect(url_for("aluno"))
     else:
-        return redirect("/")
+        return redirect(url_for("login"))
 
-@app.route("/aluno")
+@app.route("/aluno", methods=["GET", "POST"])
 def aluno():
-    return render_template("aluno.html")
+    if request.method == "POST":
+        agendamentos.append({
+            "id": next(contador_id),
+            "nome": request.form["nome"],
+            "disciplinas": request.form["disciplinas"],
+            "data": request.form["data"],
+            "hora": request.form["hora"],
+            "presente": False
+        })
+        return redirect(url_for("aluno"))
 
-@app.route("/agendar", methods=["POST"])
-def agendar():
-    agendamentos.append({
-        "id": next(contador_id),
-        "nome": request.form["nome"],
-        "disciplinas": request.form["disciplinas"],
-        "data": request.form["data"],
-        "hora": request.form["hora"],
-        "presente": False
-    })
-    return redirect("/aluno")
+    return render_template("aluno.html")
 
 @app.route("/admin")
 def admin():
@@ -53,11 +52,11 @@ def presenca(id):
         if a["id"] == id:
             a["presente"] = True
             break
-    return redirect("/admin")
+    return redirect(url_for("admin"))
 
 @app.route("/logout")
 def logout():
-    return redirect("/")
+    return redirect(url_for("login"))
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
