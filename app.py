@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request
 import itertools
 
 app = Flask(__name__)
+app.secret_key = "unifacvest"
 
 agendamentos = []
 contador_id = itertools.count(1)
@@ -16,14 +17,15 @@ def fazer_login():
     senha = request.form["senha"]
 
     if usuario == "admin" and senha == "admin123":
-        return redirect(url_for("admin"))
+        return redirect("/admin")
     elif senha == "aluno123":
-        return redirect(url_for("aluno"))
+        return redirect("/agendar")
     else:
-        return redirect(url_for("login"))
+        return redirect("/")
 
-@app.route("/aluno", methods=["GET", "POST"])
-def aluno():
+@app.route("/agendar", methods=["GET", "POST"])
+def agendar():
+    msg = ""
     if request.method == "POST":
         agendamentos.append({
             "id": next(contador_id),
@@ -33,18 +35,12 @@ def aluno():
             "hora": request.form["hora"],
             "presente": False
         })
-        return redirect(url_for("aluno"))
-
-    return render_template("aluno.html")
+        msg = "Agendamento realizado com sucesso"
+    return render_template("agendar.html", msg=msg)
 
 @app.route("/admin")
 def admin():
-    total_presentes = sum(1 for a in agendamentos if a["presente"])
-    return render_template(
-        "admin.html",
-        agendamentos=agendamentos,
-        total_presentes=total_presentes
-    )
+    return render_template("admin.html", agendamentos=agendamentos)
 
 @app.route("/presenca/<int:id>")
 def presenca(id):
@@ -52,11 +48,8 @@ def presenca(id):
         if a["id"] == id:
             a["presente"] = True
             break
-    return redirect(url_for("admin"))
+    return redirect("/admin")
 
 @app.route("/logout")
 def logout():
-    return redirect(url_for("login"))
-
-if __name__ == "__main__":
-    app.run()
+    return redirect("/")
