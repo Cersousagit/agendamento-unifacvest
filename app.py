@@ -1,100 +1,62 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from datetime import datetime
+from flask import Flask, render_template, redirect, url_for, request
 import itertools
 
-app = Flask(__name__, template_folder="modelos")
-app.secret_key = "unifacvest123"
+app = Flask(__name__)
 
 agendamentos = []
 contador_id = itertools.count(1)
 
-# ---------- LOGIN ----------
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def login():
-    erro = None
-    if request.method == "POST":
-        usuario = request.form["usuario"]
-        senha = request.form["senha"]
-        nome = request.form.get("nome", "")
+    return render_template("login.html")
 
-        if usuario == "admin" and senha == "admin123":
-            session["perfil"] = "admin"
-            return redirect("/admin")
+@app.route("/login", methods=["POST"])
+def fazer_login():
+    usuario = request.form["usuario"]
+    senha = request.form["senha"]
 
-        elif senha == "aluno123" and nome.strip() != "":
-            session["perfil"] = "aluno"
-            session["nome"] = nome
-            return redirect("/agendar")
-
-        else:
-            erro = "Dados inválidos"
-
-    return render_template("login.html", erro=erro)
-
-# ---------- AGENDAR ----------
-@app.route("/agendar", methods=["GET", "POST"])
-def agendar():
-    if session.get("perfil") != "aluno":
+    if usuario == "admin" and senha == "admin123":
+        return redirect("/admin")
+    elif senha == "aluno123":
+        return redirect("/aluno")
+    else:
         return redirect("/")
 
-    msg = ""
-    if request.method == "POST":
-        agendamentos.append({
-            "id": next(contador_id),
-            "nome": session["nome"],
-            "disciplinas": request.form["disciplinas"],
-            "data": request.form["data"],
-            "hora": request.form["hora"],
-            "presente": False
-        })
-        msg = "Agendamento realizado com sucesso!"
+@app.route("/aluno")
+def aluno():
+    return render_template("aluno.html")
 
-    return render_template("agendar.html", msg=msg)
+@app.route("/agendar", methods=["POST"])
+def agendar():
+    agendamentos.append({
+        "id": next(contador_id),
+        "nome": request.form["nome"],
+        "disciplinas": request.form["disciplinas"],
+        "data": request.form["data"],
+        "hora": request.form["hora"],
+        "presente": False
+    })
+    return redirect("/aluno")
 
-# ---------- ADMIN ----------
 @app.route("/admin")
 def admin():
-    if session.get("perfil") != "admin":
-        return redirect("/")
-
     total_presentes = sum(1 for a in agendamentos if a["presente"])
-
-    datas = []
-    quantidades = []
-
-    for a in agendamentos:
-        if a["data"] not in datas:
-            datas.append(a["data"])
-            quantidades.append(1)
-        else:
-            idx = datas.index(a["data"])
-            quantidades[idx] += 1
-
     return render_template(
         "admin.html",
         agendamentos=agendamentos,
-        total_presentes=total_presentes,
-        datas=datas,
-        quantidades=quantidades
+        total_presentes=total_presentes
     )
 
-# ---------- PRESENÇA ----------
 @app.route("/presenca/<int:id>")
 def presenca(id):
-    if session.get("perfil") != "admin":
-        return redirect("/")
-
     for a in agendamentos:
         if a["id"] == id:
             a["presente"] = True
             break
+    return redirect("/admin")
 
-    return redirect(url_for("admin"))
-
-# ---------- LOGOUT ----------
 @app.route("/logout")
 def logout():
-    session.clear()
     return redirect("/")
 
 if __name__ == "__main__":
