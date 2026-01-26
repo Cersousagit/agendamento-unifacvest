@@ -35,7 +35,7 @@ def agendar():
             "hora": request.form["hora"],
             "presente": False
         })
-        msg = "Agendamento realizado com sucesso"
+        msg = "Agendamento realizado com sucesso!"
     return render_template("agendar.html", msg=msg)
 
 @app.route("/admin")
