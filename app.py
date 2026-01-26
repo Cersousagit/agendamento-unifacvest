@@ -1,9 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, request
 import itertools
 
 app = Flask(__name__)
 app.secret_key = "unifacvest"
 
+# Banco de dados em memória
 agendamentos = []
 contador_id = itertools.count(1)
 
