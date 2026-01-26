@@ -1,73 +1,34 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Admin</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-body { font-family:Arial; background:#f2f4f8; }
-header {
-    background:#003366;
-    padding:15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-header img { height:45px; }
-a { background:#c62828; color:white; padding:8px 12px; border-radius:5px; text-decoration:none; }
-.card {
-    background:white;
-    margin:15px;
-    padding:15px;
-    border-radius:8px;
-}
-.btn {
-    background:green;
-    color:white;
-    padding:6px 10px;
-    text-decoration:none;
-    border-radius:5px;
-}
-.ok { color:green; font-weight:bold; }
-.dashboard { margin:30px; background:white; padding:20px; border-radius:8px; }
-</style>
+    <title>Painel Administrativo - UNIFACVEST</title>
 </head>
 <body>
 
-<header>
-<img src="{{ url_for('static', filename='unifacvest.png') }}">
-<a href="/logout">Sair</a>
-</header>
+<img src="/static/unifacvest.png" width="180">
+
+<h2>Provas Agendadas</h2>
 
 {% for a in agendamentos %}
-<div class="card">
-<strong>{{ a.nome }}</strong><br>
-{{ a.disciplinas }}<br>
-{{ a.data }} - {{ a.hora }}<br>
+<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+    <strong>{{ a.nome }}</strong><br>
+    Disciplinas: {{ a.disciplinas }}<br>
+    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
-{% if not a.presente %}
-<a class="btn" href="/presenca/{{ a.id }}">Presente</a>
-{% else %}
-<span class="ok">✔ Presente</span>
-{% endif %}
+    {% if not a.presente %}
+        <a href="{{ url_for('presenca', id=a.id) }}">
+            <button style="background:green;color:white;">Presente</button>
+        </a>
+    {% else %}
+        <span style="color:green;">✔ Presente</span>
+    {% endif %}
 </div>
 {% endfor %}
 
-<div class="dashboard">
-<h3>Dashboard</h3>
-<p>Total de presentes: {{ total_presentes }}</p>
-<canvas id="grafico"></canvas>
-</div>
-
-<script>
-new Chart(document.getElementById("grafico"), {
-type:"bar",
-data:{
-labels: {{ datas|tojson }},
-datasets:[{ label:"Agendamentos", data: {{ quantidades|tojson }} }]
-}
-});
-</script>
+<br>
+<a href="/logout">
+    <button style="background:red;color:white;">Sair</button>
+</a>
 
 </body>
 </html>
