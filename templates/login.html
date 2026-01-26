@@ -1,55 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Login - UNIFACVEST</title>
-<style>
-body {
-    background:#8b0000;
-    font-family:Arial;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-.box {
-    background:white;
-    padding:30px;
-    width:320px;
-    border-radius:8px;
-    text-align:center;
-}
-img { width:150px; margin-bottom:15px; }
-input,button {
-    width:100%;
-    padding:10px;
-    margin-top:10px;
-}
-button {
-    background:#8b0000;
-    color:white;
-    border:none;
-}
-.erro { color:red; margin-top:10px; }
-</style>
+    <title>Login - UNIFACVEST</title>
 </head>
 <body>
 
-<div class="box">
-<img src="{{ url_for('static', filename='unifacvest.png') }}">
-<h3>Acesso UNIFACVEST</h3>
+<img src="/static/unifacvest.png" width="180">
 
-<form method="POST">
-<input type="text" name="nome" placeholder="Nome completo (Aluno)">
-<input type="text" name="usuario" placeholder="Usuário (admin)">
-<input type="password" name="senha" placeholder="Senha">
-<button type="submit">Entrar</button>
+<form method="POST" action="/login">
+    Usuário:<br>
+    <input type="text" name="usuario"><br><br>
+
+    Senha:<br>
+    <input type="password" name="senha"><br><br>
+
+    <button type="submit">Entrar</button>
 </form>
-
-{% if erro %}
-<div class="erro">{{ erro }}</div>
-{% endif %}
-</div>
 
 </body>
 </html>
