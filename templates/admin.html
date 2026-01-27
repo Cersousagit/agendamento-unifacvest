@@ -6,41 +6,60 @@
 
 <style>
 body {
-    font-family: Arial;
-    background: #f4f6f8;
+    font-family: Arial, sans-serif;
+    background: #8b0000;
     margin: 0;
+    padding: 0;
 }
 
 .container {
     max-width: 900px;
     margin: 30px auto;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 25px;
 }
 
-header {
+/* HEADER */
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
-header img {
+.header img {
     width: 160px;
 }
 
-.sair a {
+.btn-sair {
     background: #c62828;
     color: white;
-    padding: 8px 14px;
+    padding: 10px 16px;
+    border-radius: 6px;
     text-decoration: none;
-    border-radius: 5px;
+    font-weight: bold;
 }
 
+/* TITULOS */
+h2 {
+    color: #8b0000;
+    margin-bottom: 15px;
+}
+
+/* CARD AGENDAMENTO */
 .card {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 12px;
+    border: 1px solid #ddd;
     border-left: 6px solid #003366;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 12px;
+    background: #fafafa;
+}
+
+.card strong {
+    font-size: 16px;
+    color: #003366;
 }
 
 .presente {
@@ -48,13 +67,27 @@ header img {
     font-weight: bold;
 }
 
-.btn {
+/* BOTÃO PRESENTE */
+.btn-presente {
+    display: inline-block;
+    margin-top: 8px;
     background: #2e7d32;
     color: white;
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: 5px;
     text-decoration: none;
     font-size: 14px;
+}
+
+/* DASHBOARD */
+.dashboard {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #ddd;
+}
+
+.dashboard p {
+    font-size: 16px;
 }
 </style>
 </head>
@@ -63,31 +96,36 @@ header img {
 
 <div class="container">
 
-<header>
-    <img src="{{ url_for('static', filename='unifacvest.png') }}">
-    <div class="sair">
-        <a href="/logout">Sair</a>
+    <!-- HEADER -->
+    <div class="header">
+        <img src="{{ url_for('static', filename='unifacvest.png') }}">
+        <a href="/logout" class="btn-sair">Sair</a>
     </div>
-</header>
 
-<h2>Provas Agendadas</h2>
+    <!-- AGENDAMENTOS -->
+    <h2>Provas Agendadas</h2>
 
-{% for a in agendamentos %}
-<div class="card">
-    <strong>{{ a.nome }}</strong><br>
-    Disciplinas: {{ a.disciplinas }}<br>
-    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
+    {% for a in agendamentos %}
+    <div class="card">
+        <strong>{{ a.nome }}</strong><br>
+        Disciplinas: {{ a.disciplinas }}<br>
+        Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
-    {% if not a.presente %}
-        <a href="{{ url_for('presenca', id=a.id) }}" class="btn">Presente</a>
-    {% else %}
-        <span class="presente">✔ Presente</span>
-    {% endif %}
-</div>
-{% endfor %}
+        {% if not a.presente %}
+            <a href="{{ url_for('presenca', id=a.id) }}" class="btn-presente">
+                Presente
+            </a>
+        {% else %}
+            <span class="presente">✔ Presente</span>
+        {% endif %}
+    </div>
+    {% endfor %}
 
-<h3>Dashboard</h3>
-<p>Total de presenças confirmadas: <b>{{ total_presentes }}</b></p>
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+        <h2>Dashboard</h2>
+        <p>Total de presenças confirmadas: <strong>{{ total_presentes }}</strong></p>
+    </div>
 
 </div>
 
