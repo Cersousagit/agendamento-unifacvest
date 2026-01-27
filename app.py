@@ -27,17 +27,22 @@ def agendar():
     msg = None
 
     if request.method == "POST":
+        disciplinas_lista = request.form.getlist("disciplinas[]")
+        disciplinas = ", ".join(disciplinas_lista)
+
         agendamentos.append({
             "id": next(contador_id),
             "nome": request.form.get("nome"),
-            "disciplinas": request.form.get("disciplinas"),
+            "disciplinas": disciplinas,
             "data": request.form.get("data"),
             "hora": request.form.get("hora"),
             "presente": False
         })
+
         msg = "Prova agendada com sucesso!"
 
     return render_template("agendar.html", msg=msg)
+
 
 @app.route("/admin")
 def admin():
