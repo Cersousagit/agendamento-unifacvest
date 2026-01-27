@@ -20,10 +20,6 @@ body {
     align-items: center;
 }
 
-.topo h3 {
-    margin: 0;
-}
-
 .btn-sair {
     background: white;
     color: #b71c1c;
@@ -54,6 +50,19 @@ h2 {
     margin-bottom: 20px;
 }
 
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+button {
+    background: #b71c1c;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
 .disciplinas {
     margin-top: 10px;
 }
@@ -65,11 +74,6 @@ h2 {
     margin-top: 5px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-}
-
-.disciplina span {
-    font-size: 14px;
 }
 
 .btn-remover {
@@ -80,37 +84,12 @@ h2 {
     width: 25px;
     height: 25px;
     cursor: pointer;
-    font-weight: bold;
-}
-
-input, button[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    margin-top: 15px;
-}
-
-button[type="submit"] {
-    background: #b71c1c;
-    color: white;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.btn-add {
-    background: #b71c1c;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- TOPO COM BOTÃO SAIR -->
 <div class="topo">
     <h3>Área do Aluno</h3>
     <form action="/logout" method="get">
@@ -120,33 +99,35 @@ button[type="submit"] {
 
 <div class="container">
 
-    <h2>Agendamento de Provas</h2>
+<h2>Agendamento de Provas</h2>
 
-    <div class="instrucao">
-        <strong>Instruções:</strong><br>
-        Digite o nome da disciplina, clique em ➕ para adicionar.
-        Caso erre, utilize o ❌ para remover.
-    </div>
+<div class="instrucao">
+<strong>Instruções:</strong><br>
+• Informe seu nome completo<br>
+• Adicione quantas disciplinas quiser usando ➕<br>
+• Use ❌ para remover se errar
+</div>
 
-    <!-- CAMPO MANUAL -->
-    <label><strong>Disciplina:</strong></label>
-    <input type="text" id="disciplinaInput" placeholder="Digite a disciplina">
+<form method="POST" action="/agendar">
 
-    <button type="button" class="btn-add" onclick="adicionarDisciplina()">➕ Adicionar Disciplina</button>
+<!-- ✅ CAMPO QUE ESTAVA FALTANDO -->
+<input type="text" name="nome" placeholder="Nome completo do aluno" required>
 
-    <!-- LISTA -->
-    <div class="disciplinas" id="listaDisciplinas"></div>
+<label>Disciplina:</label>
+<input type="text" id="disciplinaInput" placeholder="Digite a disciplina">
 
-    <form method="POST" action="/agendar">
-        <!-- Campo oculto para enviar disciplinas -->
-        <input type="hidden" name="disciplinas" id="disciplinasHidden">
+<button type="button" onclick="adicionarDisciplina()">➕ Adicionar Disciplina</button>
 
-        <input type="date" name="data" required>
-        <input type="time" name="hora" required>
+<div class="disciplinas" id="listaDisciplinas"></div>
 
-        <button type="submit" onclick="prepararEnvio()">Confirmar Agendamento</button>
-    </form>
+<input type="hidden" name="disciplinas" id="disciplinasHidden">
 
+<input type="date" name="data" required>
+<input type="time" name="hora" required>
+
+<button type="submit" onclick="prepararEnvio()">Confirmar Agendamento</button>
+
+</form>
 </div>
 
 <script>
@@ -155,7 +136,6 @@ let disciplinas = [];
 function adicionarDisciplina() {
     const input = document.getElementById("disciplinaInput");
     const nome = input.value.trim();
-
     if (nome === "") return;
 
     disciplinas.push(nome);
@@ -173,15 +153,11 @@ function atualizarLista() {
     lista.innerHTML = "";
 
     disciplinas.forEach((disc, index) => {
-        const div = document.createElement("div");
-        div.className = "disciplina";
-
-        div.innerHTML = `
+        lista.innerHTML += `
+        <div class="disciplina">
             <span>${disc}</span>
-            <button type="button" class="btn-remover" onclick="removerDisciplina(${index})">✖</button>
-        `;
-
-        lista.appendChild(div);
+            <button type="button" class="btn-remover" onclick="removerDisciplina(${index})">❌</button>
+        </div>`;
     });
 }
 
