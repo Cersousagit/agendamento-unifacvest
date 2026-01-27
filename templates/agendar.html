@@ -6,91 +6,110 @@
 
 <style>
 body {
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:#f4f6f8;
-}
-
-header {
-    background:#b71c1c;
-    padding:15px 30px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-header img {
-    height:45px;
-}
-
-header a {
-    background:#c62828;
-    color:white;
-    padding:8px 14px;
-    text-decoration:none;
-    border-radius:5px;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
 }
 
 .container {
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:calc(100vh - 80px);
+    max-width: 700px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-.card {
-    background:white;
-    padding:25px;
-    width:380px;
-    border-radius:8px;
-    text-align:center;
+h2 {
+    text-align: center;
+    margin-bottom: 10px;
 }
 
-input, button {
-    width:100%;
-    padding:10px;
-    margin-top:10px;
+.instrucao {
+    background: #f9f9f9;
+    padding: 15px;
+    border-left: 5px solid #b71c1c;
+    margin-bottom: 20px;
 }
 
-button {
-    background:#b71c1c;
-    color:white;
-    border:none;
-    cursor:pointer;
+.disciplinas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.success {
-    margin-top:15px;
-    color:green;
-    font-weight:bold;
+.disciplina {
+    padding: 10px 15px;
+    background: #e0e0e0;
+    border-radius: 5px;
+}
+
+.btn-add {
+    background: #b71c1c;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 18px;
+    border-radius: 5px;
+}
+
+input, button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+}
+
+button[type="submit"] {
+    background: #b71c1c;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <img src="{{ url_for('static', filename='unifacvest.png') }}">
-    <a href="/logout">Sair</a>
-</header>
-
 <div class="container">
-    <div class="card">
-        <h3>Agendamento de Provas</h3>
 
-        <form method="POST">
-            <input type="text" name="nome" placeholder="Nome do aluno" required>
-            <input type="text" name="disciplinas" placeholder="Disciplinas" required>
-            <input type="date" name="data" required>
-            <input type="time" name="hora" required>
-            <button type="submit">Enviar</button>
-        </form>
+    <h2>Agendamento de Provas</h2>
 
-        {% if msg %}
-            <div class="success">✔ {{ msg }}</div>
-        {% endif %}
+    <!-- INSTRUÇÃO (TINHA SUMIDO) -->
+    <div class="instrucao">
+        <strong>Instruções:</strong><br>
+        Selecione suas disciplinas, escolha a data e o horário disponíveis
+        e confirme o agendamento da sua prova.
     </div>
+
+    <!-- DISCIPLINAS + BOTÃO -->
+    <label><strong>Disciplinas:</strong></label>
+    <div class="disciplinas" id="listaDisciplinas">
+        <div class="disciplina">Disciplina 1</div>
+        <div class="disciplina">Disciplina 2</div>
+    </div>
+
+    <!-- BOTÃO + (TINHA SUMIDO) -->
+    <button class="btn-add" onclick="adicionarDisciplina()">➕ Adicionar Disciplina</button>
+
+    <form method="POST" action="/agendar">
+        <input type="date" name="data" required>
+        <input type="time" name="hora" required>
+        <button type="submit">Confirmar Agendamento</button>
+    </form>
+
 </div>
+
+<script>
+function adicionarDisciplina() {
+    const lista = document.getElementById("listaDisciplinas");
+    const nova = document.createElement("div");
+    nova.className = "disciplina";
+    nova.innerText = "Nova Disciplina";
+    lista.appendChild(nova);
+}
+</script>
 
 </body>
 </html>
