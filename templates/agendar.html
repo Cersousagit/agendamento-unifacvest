@@ -2,167 +2,216 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Agendamento de Provas</title>
+<title>Agendamento de Provas - UNIFACVEST</title>
 
 <style>
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
-}
-
-.topo {
-    background: #b71c1c;
-    color: white;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn-sair {
-    background: white;
-    color: #b71c1c;
-    border: none;
-    padding: 8px 15px;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 4px;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #8b0000;
 }
 
 .container {
-    max-width: 700px;
-    margin: 40px auto;
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-h2 {
+.box {
+    background: #ffffff;
+    width: 420px;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+.header {
     text-align: center;
+    margin-bottom: 15px;
 }
 
-.instrucao {
-    background: #f9f9f9;
-    padding: 15px;
-    border-left: 5px solid #b71c1c;
-    margin-bottom: 20px;
+.header img {
+    width: 160px;
+}
+
+.sair {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.sair a {
+    background: #c62828;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+h3 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.instrucoes {
+    background: #f5f5f5;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    margin-bottom: 15px;
 }
 
 input, button {
     width: 100%;
     padding: 10px;
-    margin-top: 10px;
+    margin-top: 8px;
+    box-sizing: border-box;
 }
 
 button {
-    background: #b71c1c;
+    background: #003366;
     color: white;
     border: none;
     cursor: pointer;
+    border-radius: 5px;
 }
 
-.disciplinas {
+button:hover {
+    opacity: 0.9;
+}
+
+.disciplina-box {
+    display: flex;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.disciplina-box input {
+    flex: 1;
+}
+
+.add {
+    background: #2e7d32;
+    width: 40px;
+}
+
+.lista {
     margin-top: 10px;
 }
 
-.disciplina {
+.item {
     background: #e0e0e0;
-    padding: 8px 10px;
+    padding: 6px 8px;
     border-radius: 5px;
     margin-top: 5px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
-.btn-remover {
-    background: #b71c1c;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
+.item span {
     cursor: pointer;
+    color: red;
+    font-weight: bold;
+}
+
+.msg {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
 }
 </style>
 </head>
 
 <body>
 
-<div class="topo">
-    <h3>Área do Aluno</h3>
-    <form action="/logout" method="get">
-        <button class="btn-sair">Sair</button>
-    </form>
-</div>
-
 <div class="container">
+<div class="box">
 
-<h2>Agendamento de Provas</h2>
+    <div class="header">
+        <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    </div>
 
-<div class="instrucao">
-<strong>Instruções:</strong><br>
-• Informe seu nome completo<br>
-• Adicione quantas disciplinas quiser usando ➕<br>
-• Use ❌ para remover se errar
+    <div class="sair">
+        <a href="/logout">Sair</a>
+    </div>
+
+    <h3>Agendamento de Provas</h3>
+
+    <div class="instrucoes">
+        Digite o <b>nome completo</b> do aluno.<br>
+        Digite a disciplina, clique em ➕ para adicionar.<br>
+        Caso erre, utilize o ❌ para remover.
+    </div>
+
+    <!-- ✅ MENSAGEM DE SUCESSO -->
+    {% if msg %}
+    <div class="msg">
+        {{ msg }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/agendar">
+
+        <input type="text" name="nome" placeholder="Nome completo do aluno" required>
+
+        <div class="disciplina-box">
+            <input type="text" id="disciplinaInput" placeholder="Digite a disciplina">
+            <button type="button" class="add" onclick="addDisciplina()">➕</button>
+        </div>
+
+        <div class="lista" id="lista"></div>
+
+        <input type="hidden" name="disciplinas" id="disciplinasHidden" required>
+
+        <input type="date" name="data" required>
+        <input type="time" name="hora" required>
+
+        <button type="submit">Confirmar Agendamento</button>
+    </form>
+
 </div>
-
-<form method="POST" action="/agendar">
-
-<!-- ✅ CAMPO QUE ESTAVA FALTANDO -->
-<input type="text" name="nome" placeholder="Nome completo do aluno" required>
-
-<label>Disciplina:</label>
-<input type="text" id="disciplinaInput" placeholder="Digite a disciplina">
-
-<button type="button" onclick="adicionarDisciplina()">➕ Adicionar Disciplina</button>
-
-<div class="disciplinas" id="listaDisciplinas"></div>
-
-<input type="hidden" name="disciplinas" id="disciplinasHidden">
-
-<input type="date" name="data" required>
-<input type="time" name="hora" required>
-
-<button type="submit" onclick="prepararEnvio()">Confirmar Agendamento</button>
-
-</form>
 </div>
 
 <script>
 let disciplinas = [];
 
-function adicionarDisciplina() {
+function addDisciplina() {
     const input = document.getElementById("disciplinaInput");
-    const nome = input.value.trim();
-    if (nome === "") return;
+    const valor = input.value.trim();
 
-    disciplinas.push(nome);
+    if (valor === "") return;
+
+    disciplinas.push(valor);
     input.value = "";
     atualizarLista();
 }
 
-function removerDisciplina(index) {
+function remover(index) {
     disciplinas.splice(index, 1);
     atualizarLista();
 }
 
 function atualizarLista() {
-    const lista = document.getElementById("listaDisciplinas");
+    const lista = document.getElementById("lista");
+    const hidden = document.getElementById("disciplinasHidden");
+
     lista.innerHTML = "";
-
-    disciplinas.forEach((disc, index) => {
+    disciplinas.forEach((d, i) => {
         lista.innerHTML += `
-        <div class="disciplina">
-            <span>${disc}</span>
-            <button type="button" class="btn-remover" onclick="removerDisciplina(${index})">❌</button>
-        </div>`;
+            <div class="item">
+                ${d}
+                <span onclick="remover(${i})">❌</span>
+            </div>
+        `;
     });
-}
 
-function prepararEnvio() {
-    document.getElementById("disciplinasHidden").value = disciplinas.join(", ");
+    hidden.value = disciplinas.join(", ");
 }
 </script>
 
