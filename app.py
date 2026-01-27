@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, url_for, request
 import itertools
 
 app = Flask(__name__)
@@ -32,22 +32,27 @@ def agendar():
         "id": next(contador_id),
         "nome": request.form["nome"],
         "disciplinas": request.form["disciplinas"],
-        "data": request.form["data"],
-        "hora": request.form["hora"],
+        "data": request.form["data"],   # yyyy-mm-dd
+        "hora": request.form["hora"],   # HH:MM
         "presente": False
     })
 
-    # ✅ mensagem de sucesso
-    msg = "Agendamento realizado com sucesso!"
-
+    msg = "Agendamento realizado com sucesso"
     return render_template("agendar.html", msg=msg)
 
 @app.route("/admin")
 def admin():
-    total_presentes = sum(1 for a in agendamentos if a["presente"])
+    # 🔥 ORDENAÇÃO POR DATA + HORA (CRESCENTE)
+    agendamentos_ordenados = sorted(
+        agendamentos,
+        key=lambda a: (a["data"], a["hora"])
+    )
+
+    total_presentes = sum(1 for a in agendamentos_ordenados if a["presente"])
+
     return render_template(
         "admin.html",
-        agendamentos=agendamentos,
+        agendamentos=agendamentos_ordenados,
         total_presentes=total_presentes
     )
 
@@ -57,7 +62,7 @@ def presenca(id):
         if a["id"] == id:
             a["presente"] = True
             break
-    return redirect("/admin")
+    return redirect(url_for("admin"))
 
 @app.route("/logout")
 def logout():
