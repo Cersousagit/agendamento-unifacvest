@@ -1,67 +1,138 @@
-from flask import Flask, render_template, redirect, url_for, request
-import itertools
-import os
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Agendamento de Provas</title>
 
-app = Flask(__name__)
+<style>
+body { font-family:Arial; background:#f4f6f8; }
 
-agendamentos = []
-contador_id = itertools.count(1)
+header {
+    background:#003366;
+    color:white;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
 
-# LOGIN
-@app.route("/")
-def login():
-    return render_template("login.html")
+header img { height:45px; }
 
-@app.route("/login", methods=["POST"])
-def fazer_login():
-    usuario = request.form["usuario"]
-    senha = request.form["senha"]
+a.sair {
+    color:white;
+    text-decoration:none;
+    background:#c62828;
+    padding:8px 12px;
+    border-radius:5px;
+}
 
-    if usuario == "admin" and senha == "admin123":
-        return redirect("/admin")
-    elif senha == "aluno123":
-        return redirect("/agendar")
-    else:
-        return redirect("/")
+.card {
+    background:white;
+    width:420px;
+    margin:30px auto;
+    padding:20px;
+    border-radius:8px;
+}
 
-# ALUNO / AGENDAMENTO
-@app.route("/agendar", methods=["GET", "POST"])
-def agendar():
-    msg = None
+input, button {
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+}
 
-    if request.method == "POST":
-        agendamentos.append({
-            "id": next(contador_id),
-            "nome": request.form["nome"],
-            "disciplinas": request.form["disciplinas"],
-            "data": request.form["data"],
-            "hora": request.form["hora"],
-            "presente": False
-        })
-        msg = "✅ Prova agendada com sucesso!"
+button {
+    background:#003366;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
 
-    return render_template("agendar.html", msg=msg)
+.plus {
+    background:#2e7d32;
+    margin-top:5px;
+}
 
-# ADMIN
-@app.route("/admin")
-def admin():
-    total_presentes = sum(1 for a in agendamentos if a["presente"])
-    return render_template(
-        "admin.html",
-        agendamentos=agendamentos,
-        total_presentes=total_presentes
-    )
+.instrucao {
+    background:#e3f2fd;
+    padding:10px;
+    border-left:4px solid #1565c0;
+    font-size:14px;
+    margin-bottom:15px;
+}
 
-@app.route("/presenca/<int:id>")
-def presenca(id):
-    for a in agendamentos:
-        if a["id"] == id:
-            a["presente"] = True
-            break
-    return redirect("/admin")
+.sucesso {
+    margin-top:10px;
+    color:green;
+    font-weight:bold;
+    text-align:center;
+}
+</style>
+</head>
 
-@app.route("/logout")
-def logout():
-    return redirect("/")
+<body>
 
-# ⚠️ NÃO USAR app.run() NO RENDER
+<header>
+<img src="{{ url_for('static', filename='unifacvest.png') }}">
+<a href="/logout" class="sair">Sair</a>
+</header>
+
+<div class="card">
+
+<h3>Agendamento de Provas</h3>
+
+<div class="instrucao">
+📌 <strong>Instruções:</strong><br>
+• Preencha seu nome corretamente.<br>
+• Adicione todas as disciplinas que deseja agendar.<br>
+• Clique em <strong>+ Adicionar disciplina</strong> para incluir mais provas.<br>
+• Confira a data e horário antes de enviar.
+</div>
+
+<form method="POST">
+
+<input type="text" name="nome" placeholder="Nome do aluno" required>
+
+<!-- DISCIPLINAS DINÂMICAS -->
+<div id="disciplinas">
+    <input type="text" name="disciplinas" placeholder="Disciplina 1" required>
+</div>
+
+<button type="button" class="plus" onclick="adicionarDisciplina()">+ Adicionar disciplina</button>
+
+<input type="date" name="data" required>
+<input type="time" name="hora" required>
+
+<button type="submit">Enviar</button>
+
+{% if msg %}
+<div class="sucesso">✅ {{ msg }}</div>
+{% endif %}
+
+</form>
+</div>
+
+<script>
+function adicionarDisciplina() {
+    const div = document.getElementById("disciplinas");
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Outra disciplina";
+    input.onchange = atualizarDisciplinas;
+    div.appendChild(input);
+}
+
+function atualizarDisciplinas() {
+    const inputs = document.querySelectorAll("#disciplinas input");
+    let valores = [];
+    inputs.forEach(i => {
+        if (i.value.trim() !== "") {
+            valores.push(i.value.trim());
+        }
+    });
+    inputs[0].name = "disciplinas";
+    inputs[0].value = valores.join(" | ");
+}
+</script>
+
+</body>
+</html>
