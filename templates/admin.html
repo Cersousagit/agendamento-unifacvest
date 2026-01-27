@@ -2,28 +2,24 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Painel Administrativo - UNIFACVEST</title>
+<title>Painel Administrativo</title>
 
 <style>
 body {
     margin:0;
-    font-family:Arial, sans-serif;
+    font-family:Arial;
     background:#f4f6f8;
 }
 
-/* HEADER */
 header {
     background:#b71c1c;
-    color:white;
     padding:15px 30px;
     display:flex;
     justify-content:space-between;
     align-items:center;
 }
 
-header img {
-    height:50px;
-}
+header img { height:45px; }
 
 header a {
     background:#c62828;
@@ -31,10 +27,8 @@ header a {
     padding:8px 14px;
     text-decoration:none;
     border-radius:5px;
-    font-weight:bold;
 }
 
-/* CONTAINER */
 .container {
     max-width:900px;
     margin:30px auto;
@@ -43,7 +37,6 @@ header a {
     border-radius:8px;
 }
 
-/* CARDS */
 .card {
     border:1px solid #ddd;
     padding:15px;
@@ -51,28 +44,14 @@ header a {
     margin-bottom:15px;
 }
 
-.presente {
-    color:green;
-    font-weight:bold;
-}
+.presente { color:green; font-weight:bold; }
 
-.btn-presenca {
+.btn {
     background:#2e7d32;
     color:white;
     padding:6px 12px;
     text-decoration:none;
     border-radius:4px;
-    display:inline-block;
-    margin-top:8px;
-}
-
-/* DASHBOARD */
-.dashboard {
-    margin-top:40px;
-}
-
-canvas {
-    margin-top:20px;
 }
 </style>
 </head>
@@ -86,47 +65,35 @@ canvas {
 
 <div class="container">
 
-    <h2>Provas Agendadas</h2>
+<h2>Provas Agendadas</h2>
 
-    {% for a in agendamentos %}
-    <div class="card">
-        <strong>{{ a.nome }}</strong><br>
-        Disciplinas: {{ a.disciplinas }}<br>
-        Data: {{ a.data }} | Hora: {{ a.hora }}<br>
+{% for a in agendamentos %}
+<div class="card">
+    <strong>{{ a.nome }}</strong><br>
+    Disciplinas: {{ a.disciplinas }}<br>
+    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
-        {% if not a.presente %}
-            <a href="{{ url_for('presenca', id=a.id) }}" class="btn-presenca">
-                Marcar Presença
-            </a>
-        {% else %}
-            <div class="presente">✔ Presente</div>
-        {% endif %}
-    </div>
-    {% endfor %}
+    {% if not a.presente %}
+        <a class="btn" href="{{ url_for('presenca', id=a.id) }}">Marcar Presença</a>
+    {% else %}
+        <div class="presente">✔ Presente</div>
+    {% endif %}
+</div>
+{% endfor %}
 
-    <!-- DASHBOARD -->
-    <div class="dashboard">
-        <h3>Dashboard</h3>
-        <canvas id="grafico"></canvas>
-    </div>
+<h3>Dashboard</h3>
+<canvas id="grafico"></canvas>
 
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('grafico');
-
-new Chart(ctx, {
+new Chart(document.getElementById('grafico'), {
     type: 'bar',
     data: {
         labels: ['Presentes', 'Ausentes'],
         datasets: [{
-            label: 'Provas',
-            data: [
-                {{ total_presentes }},
-                {{ agendamentos|length - total_presentes }}
-            ]
+            data: [{{ total_presentes }}, {{ total_ausentes }}]
         }]
     }
 });
