@@ -11,6 +11,29 @@ body {
     background: #f2f2f2;
 }
 
+.topo {
+    background: #b71c1c;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topo h3 {
+    margin: 0;
+}
+
+.btn-sair {
+    background: white;
+    color: #b71c1c;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
 .container {
     max-width: 700px;
     margin: 40px auto;
@@ -22,7 +45,6 @@ body {
 
 h2 {
     text-align: center;
-    margin-bottom: 10px;
 }
 
 .instrucao {
@@ -33,25 +55,32 @@ h2 {
 }
 
 .disciplinas {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    margin-top: 10px;
 }
 
 .disciplina {
-    padding: 10px 15px;
     background: #e0e0e0;
+    padding: 8px 10px;
     border-radius: 5px;
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.btn-add {
+.disciplina span {
+    font-size: 14px;
+}
+
+.btn-remover {
     background: #b71c1c;
     color: white;
     border: none;
-    padding: 10px 15px;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
     cursor: pointer;
-    font-size: 18px;
-    border-radius: 5px;
+    font-weight: bold;
 }
 
 input, button[type="submit"] {
@@ -67,47 +96,97 @@ button[type="submit"] {
     font-size: 16px;
     cursor: pointer;
 }
+
+.btn-add {
+    background: #b71c1c;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+}
 </style>
 </head>
 
 <body>
 
+<!-- TOPO COM BOTÃO SAIR -->
+<div class="topo">
+    <h3>Área do Aluno</h3>
+    <form action="/logout" method="get">
+        <button class="btn-sair">Sair</button>
+    </form>
+</div>
+
 <div class="container">
 
     <h2>Agendamento de Provas</h2>
 
-    <!-- INSTRUÇÃO (TINHA SUMIDO) -->
     <div class="instrucao">
         <strong>Instruções:</strong><br>
-        Selecione suas disciplinas, escolha a data e o horário disponíveis
-        e confirme o agendamento da sua prova.
+        Digite o nome da disciplina, clique em ➕ para adicionar.
+        Caso erre, utilize o ❌ para remover.
     </div>
 
-    <!-- DISCIPLINAS + BOTÃO -->
-    <label><strong>Disciplinas:</strong></label>
-    <div class="disciplinas" id="listaDisciplinas">
-        <div class="disciplina">Disciplina 1</div>
-        <div class="disciplina">Disciplina 2</div>
-    </div>
+    <!-- CAMPO MANUAL -->
+    <label><strong>Disciplina:</strong></label>
+    <input type="text" id="disciplinaInput" placeholder="Digite a disciplina">
 
-    <!-- BOTÃO + (TINHA SUMIDO) -->
-    <button class="btn-add" onclick="adicionarDisciplina()">➕ Adicionar Disciplina</button>
+    <button type="button" class="btn-add" onclick="adicionarDisciplina()">➕ Adicionar Disciplina</button>
+
+    <!-- LISTA -->
+    <div class="disciplinas" id="listaDisciplinas"></div>
 
     <form method="POST" action="/agendar">
+        <!-- Campo oculto para enviar disciplinas -->
+        <input type="hidden" name="disciplinas" id="disciplinasHidden">
+
         <input type="date" name="data" required>
         <input type="time" name="hora" required>
-        <button type="submit">Confirmar Agendamento</button>
+
+        <button type="submit" onclick="prepararEnvio()">Confirmar Agendamento</button>
     </form>
 
 </div>
 
 <script>
+let disciplinas = [];
+
 function adicionarDisciplina() {
+    const input = document.getElementById("disciplinaInput");
+    const nome = input.value.trim();
+
+    if (nome === "") return;
+
+    disciplinas.push(nome);
+    input.value = "";
+    atualizarLista();
+}
+
+function removerDisciplina(index) {
+    disciplinas.splice(index, 1);
+    atualizarLista();
+}
+
+function atualizarLista() {
     const lista = document.getElementById("listaDisciplinas");
-    const nova = document.createElement("div");
-    nova.className = "disciplina";
-    nova.innerText = "Nova Disciplina";
-    lista.appendChild(nova);
+    lista.innerHTML = "";
+
+    disciplinas.forEach((disc, index) => {
+        const div = document.createElement("div");
+        div.className = "disciplina";
+
+        div.innerHTML = `
+            <span>${disc}</span>
+            <button type="button" class="btn-remover" onclick="removerDisciplina(${index})">✖</button>
+        `;
+
+        lista.appendChild(div);
+    });
+}
+
+function prepararEnvio() {
+    document.getElementById("disciplinasHidden").value = disciplinas.join(", ");
 }
 </script>
 
