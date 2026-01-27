@@ -1,11 +1,16 @@
 from flask import Flask, render_template, redirect, url_for, request
+from datetime import date
 import itertools
 
 app = Flask(__name__)
 
+# Banco simples em memória
 agendamentos = []
 contador_id = itertools.count(1)
 
+# ======================
+# LOGIN
+# ======================
 @app.route("/")
 def login():
     return render_template("login.html")
@@ -22,6 +27,9 @@ def fazer_login():
     else:
         return redirect("/")
 
+# ======================
+# ALUNO
+# ======================
 @app.route("/aluno")
 def aluno():
     return render_template("agendar.html")
@@ -32,38 +40,57 @@ def agendar():
         "id": next(contador_id),
         "nome": request.form["nome"],
         "disciplinas": request.form["disciplinas"],
-        "data": request.form["data"],   # yyyy-mm-dd
-        "hora": request.form["hora"],   # HH:MM
+        "data": request.form["data"],
+        "hora": request.form["hora"],
         "presente": False
     })
 
-    msg = "Agendamento realizado com sucesso"
-    return render_template("agendar.html", msg=msg)
-
-@app.route("/admin")
-def admin():
-    # 🔥 ORDENAÇÃO POR DATA + HORA (CRESCENTE)
-    agendamentos_ordenados = sorted(
-        agendamentos,
-        key=lambda a: (a["data"], a["hora"])
+    return render_template(
+        "agendar.html",
+        msg="Agendamento realizado com sucesso"
     )
 
-    total_presentes = sum(1 for a in agendamentos_ordenados if a["presente"])
+# ======================
+# ADMIN
+# ======================
+@app.route("/admin")
+def admin():
+    hoje = date.today().isoformat()
+
+    # 🔥 REMOVE PROVAS COM DATA PASSADA
+    agendamentos_validos = [
+        a for a in agendamentos if a["data"] >= hoje
+    ]
+
+    # Ordenar por data + hora
+    agendamentos_validos.sort(
+        key=lambda x: (x["data"], x["hora"])
+    )
+
+    total_presentes = sum(
+        1 for a in agendamentos_validos if a["presente"]
+    )
 
     return render_template(
         "admin.html",
-        agendamentos=agendamentos_ordenados,
+        agendamentos=agendamentos_validos,
         total_presentes=total_presentes
     )
 
+# ======================
+# PRESENÇA
+# ======================
 @app.route("/presenca/<int:id>")
 def presenca(id):
     for a in agendamentos:
         if a["id"] == id:
             a["presente"] = True
             break
-    return redirect(url_for("admin"))
+    return redirect("/admin")
 
+# ======================
+# LOGOUT
+# ======================
 @app.route("/logout")
 def logout():
     return redirect("/")
