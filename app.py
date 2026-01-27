@@ -1,23 +1,19 @@
 from flask import Flask, render_template, redirect, url_for, request
 import itertools
-import os
 
 app = Flask(__name__)
 
 agendamentos = []
 contador_id = itertools.count(1)
 
-# ======================
-# LOGIN
-# ======================
 @app.route("/")
 def login():
     return render_template("login.html")
 
 @app.route("/login", methods=["POST"])
 def fazer_login():
-    usuario = request.form["usuario"]
-    senha = request.form["senha"]
+    usuario = request.form.get("usuario")
+    senha = request.form.get("senha")
 
     if usuario == "admin" and senha == "admin123":
         return redirect("/admin")
@@ -26,28 +22,23 @@ def fazer_login():
     else:
         return redirect("/")
 
-# ======================
-# ALUNO / AGENDAR
-# ======================
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
+    msg = None
+
     if request.method == "POST":
         agendamentos.append({
             "id": next(contador_id),
-            "nome": request.form["nome"],
-            "disciplinas": request.form["disciplinas"],
-            "data": request.form["data"],
-            "hora": request.form["hora"],
+            "nome": request.form.get("nome"),
+            "disciplinas": request.form.get("disciplinas"),
+            "data": request.form.get("data"),
+            "hora": request.form.get("hora"),
             "presente": False
         })
         msg = "Prova agendada com sucesso!"
-        return render_template("agendar.html", msg=msg)
 
-    return render_template("agendar.html")
+    return render_template("agendar.html", msg=msg)
 
-# ======================
-# ADMIN
-# ======================
 @app.route("/admin")
 def admin():
     total = len(agendamentos)
@@ -74,9 +65,5 @@ def presenca(id):
 def logout():
     return redirect("/")
 
-# ======================
-# RENDER (NÃO REMOVER)
-# ======================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=5000)
