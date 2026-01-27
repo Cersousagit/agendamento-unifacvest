@@ -4,37 +4,31 @@
 <meta charset="UTF-8">
 <title>Painel Administrativo</title>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
-body { font-family:Arial; background:#f4f6f8; }
+body {
+    font-family: Arial;
+    background: #f4f6f8;
+}
+
 .container {
-    width:800px;
-    margin:30px auto;
-    background:white;
-    padding:20px;
-    border-radius:8px;
+    width: 80%;
+    margin: auto;
 }
+
 .card {
-    border:1px solid #ccc;
-    padding:10px;
-    margin-bottom:10px;
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
 }
-.btn {
-    background:#2e7d32;
-    color:white;
-    padding:5px 10px;
-    text-decoration:none;
-    border-radius:4px;
+
+button {
+    background: green;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
 }
-.sair {
-    background:red;
-    color:white;
-    padding:8px 12px;
-    border:none;
-    border-radius:5px;
-}
-hr { margin:30px 0; }
 </style>
 </head>
 
@@ -42,12 +36,10 @@ hr { margin:30px 0; }
 
 <div class="container">
 
-<img src="/static/unifacvest.png" width="160">
+<img src="/static/unifacvest.png" width="180">
 
-<h2>Painel Administrativo</h2>
-<p>Total de presenças confirmadas: <strong>{{ total_presentes }}</strong></p>
+<h2>Provas Agendadas</h2>
 
-<!-- LISTA DE AGENDAMENTOS -->
 {% for a in agendamentos %}
 <div class="card">
     <strong>{{ a.nome }}</strong><br>
@@ -55,7 +47,9 @@ hr { margin:30px 0; }
     Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
     {% if not a.presente %}
-        <a href="{{ url_for('presenca', id=a.id) }}" class="btn">Confirmar Presença</a>
+        <a href="{{ url_for('presenca', id=a.id) }}">
+            <button>Marcar Presença</button>
+        </a>
     {% else %}
         <span style="color:green;">✔ Presente</span>
     {% endif %}
@@ -64,48 +58,23 @@ hr { margin:30px 0; }
 
 <hr>
 
-<!-- DASHBOARD -->
-<h3>📊 Dashboard de Agendamentos</h3>
+<h3>Dashboard</h3>
 
-<canvas id="graficoAgendamentos"></canvas>
-
-<br>
-
-<a href="/logout">
-<button class="sair">Sair</button>
-</a>
+<canvas id="grafico"></canvas>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-const dados = {};
-
-{% for a in agendamentos %}
-    if (dados["{{ a.data }}"]) {
-        dados["{{ a.data }}"]++;
-    } else {
-        dados["{{ a.data }}"] = 1;
-    }
-{% endfor %}
-
-const labels = Object.keys(dados);
-const valores = Object.values(dados);
-
-new Chart(document.getElementById('graficoAgendamentos'), {
+new Chart(document.getElementById('grafico'), {
     type: 'bar',
     data: {
-        labels: labels,
+        labels: ['Total', 'Presentes', 'Ausentes'],
         datasets: [{
-            label: 'Agendamentos por data',
-            data: valores,
-            backgroundColor: '#003366'
+            label: 'Provas',
+            data: [{{ total }}, {{ presentes }}, {{ ausentes }}]
         }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { display: false }
-        }
     }
 });
 </script>
