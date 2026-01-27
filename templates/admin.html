@@ -2,78 +2,131 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Painel Administrativo</title>
+<title>Painel Administrativo - UNIFACVEST</title>
 
 <style>
 body {
-    font-family: Arial;
-    background: #f4f6f8;
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#f4f6f8;
 }
 
+/* HEADER */
+header {
+    background:#b71c1c;
+    color:white;
+    padding:15px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+header img {
+    height:50px;
+}
+
+header a {
+    background:#c62828;
+    color:white;
+    padding:8px 14px;
+    text-decoration:none;
+    border-radius:5px;
+    font-weight:bold;
+}
+
+/* CONTAINER */
 .container {
-    width: 80%;
-    margin: auto;
+    max-width:900px;
+    margin:30px auto;
+    background:white;
+    padding:25px;
+    border-radius:8px;
 }
 
+/* CARDS */
 .card {
-    background: white;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 6px;
+    border:1px solid #ddd;
+    padding:15px;
+    border-radius:6px;
+    margin-bottom:15px;
 }
 
-button {
-    background: green;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    cursor: pointer;
+.presente {
+    color:green;
+    font-weight:bold;
+}
+
+.btn-presenca {
+    background:#2e7d32;
+    color:white;
+    padding:6px 12px;
+    text-decoration:none;
+    border-radius:4px;
+    display:inline-block;
+    margin-top:8px;
+}
+
+/* DASHBOARD */
+.dashboard {
+    margin-top:40px;
+}
+
+canvas {
+    margin-top:20px;
 }
 </style>
 </head>
 
 <body>
 
+<header>
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    <a href="/logout">Sair</a>
+</header>
+
 <div class="container">
 
-<img src="/static/unifacvest.png" width="180">
+    <h2>Provas Agendadas</h2>
 
-<h2>Provas Agendadas</h2>
+    {% for a in agendamentos %}
+    <div class="card">
+        <strong>{{ a.nome }}</strong><br>
+        Disciplinas: {{ a.disciplinas }}<br>
+        Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
-{% for a in agendamentos %}
-<div class="card">
-    <strong>{{ a.nome }}</strong><br>
-    Disciplinas: {{ a.disciplinas }}<br>
-    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
+        {% if not a.presente %}
+            <a href="{{ url_for('presenca', id=a.id) }}" class="btn-presenca">
+                Marcar Presença
+            </a>
+        {% else %}
+            <div class="presente">✔ Presente</div>
+        {% endif %}
+    </div>
+    {% endfor %}
 
-    {% if not a.presente %}
-        <a href="{{ url_for('presenca', id=a.id) }}">
-            <button>Marcar Presença</button>
-        </a>
-    {% else %}
-        <span style="color:green;">✔ Presente</span>
-    {% endif %}
-</div>
-{% endfor %}
-
-<hr>
-
-<h3>Dashboard</h3>
-
-<canvas id="grafico"></canvas>
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+        <h3>Dashboard</h3>
+        <canvas id="grafico"></canvas>
+    </div>
 
 </div>
 
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-new Chart(document.getElementById('grafico'), {
+const ctx = document.getElementById('grafico');
+
+new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Total', 'Presentes', 'Ausentes'],
+        labels: ['Presentes', 'Ausentes'],
         datasets: [{
             label: 'Provas',
-            data: [{{ total }}, {{ presentes }}, {{ ausentes }}]
+            data: [
+                {{ total_presentes }},
+                {{ agendamentos|length - total_presentes }}
+            ]
         }]
     }
 });
