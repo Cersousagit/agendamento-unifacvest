@@ -5,13 +5,10 @@ from openpyxl import Workbook
 
 app = Flask(__name__)
 
-# Banco simples em memória
 agendamentos = []
 contador_id = itertools.count(1)
 
-# ======================
-# LOGIN
-# ======================
+# ================= LOGIN =================
 @app.route("/")
 def login():
     return render_template("login.html")
@@ -25,12 +22,9 @@ def fazer_login():
         return redirect("/admin")
     elif senha == "aluno123":
         return redirect("/aluno")
-    else:
-        return redirect("/")
+    return redirect("/")
 
-# ======================
-# ALUNO
-# ======================
+# ================= ALUNO =================
 @app.route("/aluno")
 def aluno():
     return render_template("agendar.html")
@@ -45,42 +39,40 @@ def agendar():
         "hora": request.form["hora"],
         "presente": False
     })
+    return render_template("agendar.html", msg="Agendamento realizado com sucesso")
 
-    return render_template(
-        "agendar.html",
-        msg="Agendamento realizado com sucesso"
-    )
-
-# ======================
-# ADMIN
-# ======================
+# ================= ADMIN =================
 @app.route("/admin")
 def admin():
     hoje = date.today().isoformat()
 
-    # Remove provas vencidas
-    agendamentos_validos = [
-        a for a in agendamentos if a["data"] >= hoje
-    ]
+    # Filtros
+    mes = request.args.get("mes")
+    ano = request.args.get("ano")
 
-    # Ordena por data e hora
-    agendamentos_validos.sort(
-        key=lambda x: (x["data"], x["hora"])
-    )
+    registros = [a for a in agendamentos if a["data"] >= hoje]
 
-    total_presentes = sum(
-        1 for a in agendamentos_validos if a["presente"]
-    )
+    if mes and ano:
+        registros = [
+            a for a in registros
+            if a["data"][5:7] == mes and a["data"][:4] == ano
+        ]
+
+    registros.sort(key=lambda x: (x["data"], x["hora"]))
+
+    total_presentes = sum(1 for a in registros if a["presente"])
+    total_faltas = sum(1 for a in registros if not a["presente"])
 
     return render_template(
         "admin.html",
-        agendamentos=agendamentos_validos,
-        total_presentes=total_presentes
+        agendamentos=registros,
+        total_presentes=total_presentes,
+        total_faltas=total_faltas,
+        mes=mes,
+        ano=ano
     )
 
-# ======================
-# PRESENÇA
-# ======================
+# ================= PRESENÇA =================
 @app.route("/presenca/<int:id>")
 def presenca(id):
     for a in agendamentos:
@@ -89,30 +81,26 @@ def presenca(id):
             break
     return redirect("/admin")
 
-# ======================
-# RELATÓRIO EXCEL
-# ======================
+# ================= RELATÓRIO EXCEL =================
 @app.route("/relatorio-excel")
 def relatorio_excel():
+    mes = request.args.get("mes")
+    ano = request.args.get("ano")
+
     wb = Workbook()
     ws = wb.active
-    ws.title = "Relatório de Presença"
+    ws.title = "Relatório"
 
-    # Cabeçalho
-    ws.append([
-        "Nome do Aluno",
-        "Disciplinas",
-        "Data",
-        "Hora",
-        "Status"
-    ])
+    ws.append(["Aluno", "Disciplinas", "Data", "Hora", "Status"])
 
-    # Apenas presenças confirmadas
-    registros = [
-        a for a in agendamentos if a["presente"]
-    ]
+    registros = agendamentos
 
-    # Ordenar por data
+    if mes and ano:
+        registros = [
+            a for a in registros
+            if a["data"][5:7] == mes and a["data"][:4] == ano
+        ]
+
     registros.sort(key=lambda x: (x["data"], x["hora"]))
 
     for a in registros:
@@ -121,22 +109,16 @@ def relatorio_excel():
             a["disciplinas"],
             datetime.strptime(a["data"], "%Y-%m-%d").strftime("%d/%m/%Y"),
             a["hora"],
-            "Presente"
+            "Presente" if a["presente"] else "Falta"
         ])
 
-    nome_arquivo = f"relatorio_presenca_{date.today().strftime('%m_%Y')}.xlsx"
-    caminho = f"/tmp/{nome_arquivo}"
+    nome = f"relatorio_{mes or 'todos'}_{ano or 'anos'}.xlsx"
+    caminho = f"/tmp/{nome}"
     wb.save(caminho)
 
-    return send_file(
-        caminho,
-        as_attachment=True,
-        download_name=nome_arquivo
-    )
+    return send_file(caminho, as_attachment=True, download_name=nome)
 
-# ======================
-# LOGOUT
-# ======================
+# ================= LOGOUT =================
 @app.route("/logout")
 def logout():
     return redirect("/")
