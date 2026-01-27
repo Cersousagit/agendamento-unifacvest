@@ -2,68 +2,73 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Painel Administrativo</title>
+<title>Painel Administrativo - UNIFACVEST</title>
 
 <style>
 body {
-    margin:0;
-    font-family:Arial;
-    background:#f4f6f8;
-}
-
-header {
-    background:#b71c1c;
-    padding:15px 30px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-header img { height:45px; }
-
-header a {
-    background:#c62828;
-    color:white;
-    padding:8px 14px;
-    text-decoration:none;
-    border-radius:5px;
+    font-family: Arial;
+    background: #f4f6f8;
+    margin: 0;
 }
 
 .container {
-    max-width:900px;
-    margin:30px auto;
-    background:white;
-    padding:25px;
-    border-radius:8px;
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+header img {
+    width: 160px;
+}
+
+.sair a {
+    background: #c62828;
+    color: white;
+    padding: 8px 14px;
+    text-decoration: none;
+    border-radius: 5px;
 }
 
 .card {
-    border:1px solid #ddd;
-    padding:15px;
-    border-radius:6px;
-    margin-bottom:15px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 6px solid #003366;
 }
 
-.presente { color:green; font-weight:bold; }
+.presente {
+    color: green;
+    font-weight: bold;
+}
 
 .btn {
-    background:#2e7d32;
-    color:white;
-    padding:6px 12px;
-    text-decoration:none;
-    border-radius:4px;
+    background: #2e7d32;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 14px;
 }
 </style>
 </head>
 
 <body>
 
+<div class="container">
+
 <header>
     <img src="{{ url_for('static', filename='unifacvest.png') }}">
-    <a href="/logout">Sair</a>
+    <div class="sair">
+        <a href="/logout">Sair</a>
+    </div>
 </header>
-
-<div class="container">
 
 <h2>Provas Agendadas</h2>
 
@@ -74,30 +79,17 @@ header a {
     Data: {{ a.data }} | Hora: {{ a.hora }}<br>
 
     {% if not a.presente %}
-        <a class="btn" href="{{ url_for('presenca', id=a.id) }}">Marcar Presença</a>
+        <a href="{{ url_for('presenca', id=a.id) }}" class="btn">Presente</a>
     {% else %}
-        <div class="presente">✔ Presente</div>
+        <span class="presente">✔ Presente</span>
     {% endif %}
 </div>
 {% endfor %}
 
 <h3>Dashboard</h3>
-<canvas id="grafico"></canvas>
+<p>Total de presenças confirmadas: <b>{{ total_presentes }}</b></p>
 
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-new Chart(document.getElementById('grafico'), {
-    type: 'bar',
-    data: {
-        labels: ['Presentes', 'Ausentes'],
-        datasets: [{
-            data: [{{ total_presentes }}, {{ total_ausentes }}]
-        }]
-    }
-});
-</script>
 
 </body>
 </html>
