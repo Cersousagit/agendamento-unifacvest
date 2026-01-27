@@ -1,127 +1,131 @@
-from flask import Flask, render_template, redirect, url_for, request, send_file
-from datetime import date, datetime
-import itertools
-from openpyxl import Workbook
+from flask import Flask, render_template, request, redirect, url_for, send_file
+from datetime import datetime
+import openpyxl
+import io
 
 app = Flask(__name__)
 
+# armazenamento simples (memória)
 agendamentos = []
-contador_id = itertools.count(1)
 
-# ================= LOGIN =================
-@app.route("/")
-def login():
-    return render_template("login.html")
-
-@app.route("/login", methods=["POST"])
-def fazer_login():
-    usuario = request.form["usuario"]
-    senha = request.form["senha"]
-
-    if usuario == "admin" and senha == "admin123":
-        return redirect("/admin")
-    elif senha == "aluno123":
-        return redirect("/aluno")
-    return redirect("/")
-
-# ================= ALUNO =================
-@app.route("/aluno")
-def aluno():
-    return render_template("agendar.html")
-
-@app.route("/agendar", methods=["POST"])
+# -------------------------
+# TELA DO ALUNO
+# -------------------------
+@app.route("/", methods=["GET", "POST"])
+@app.route("/agendar", methods=["GET", "POST"])
 def agendar():
-    agendamentos.append({
-        "id": next(contador_id),
-        "nome": request.form["nome"],
-        "disciplinas": request.form["disciplinas"],
-        "data": request.form["data"],
-        "hora": request.form["hora"],
-        "presente": False
-    })
-    return render_template("agendar.html", msg="Agendamento realizado com sucesso")
+    mensagem = None
 
-# ================= ADMIN =================
+    if request.method == "POST":
+        nome = request.form.get("nome")
+        disciplinas = request.form.getlist("disciplinas[]")
+        data = request.form.get("data")
+        hora = request.form.get("hora")
+
+        if not nome or not disciplinas or not data or not hora:
+            return "Bad Request", 400
+
+        agendamentos.append({
+            "nome": nome,
+            "disciplinas": disciplinas,
+            "data": data,
+            "hora": hora,
+            "presente": False
+        })
+
+        mensagem = "Agendamento realizado com sucesso"
+
+    return render_template("agendar.html", mensagem=mensagem)
+
+# -------------------------
+# ADMIN
+# -------------------------
 @app.route("/admin")
 def admin():
-    hoje = date.today().isoformat()
+    hoje = datetime.now().date()
 
-    # Filtros
-    mes = request.args.get("mes")
-    ano = request.args.get("ano")
+    provas_validas = [
+        p for p in agendamentos
+        if datetime.strptime(p["data"], "%Y-%m-%d").date() >= hoje
+    ]
 
-    registros = [a for a in agendamentos if a["data"] >= hoje]
+    provas_validas.sort(key=lambda p: (p["data"], p["hora"]))
 
-    if mes and ano:
-        registros = [
-            a for a in registros
-            if a["data"][5:7] == mes and a["data"][:4] == ano
-        ]
+    mes_selecionado = request.args.get("mes", "")
+    ano_selecionado = request.args.get("ano", "")
 
-    registros.sort(key=lambda x: (x["data"], x["hora"]))
+    if mes_selecionado:
+        provas_validas = [p for p in provas_validas if p["data"].split("-")[1] == mes_selecionado]
 
-    total_presentes = sum(1 for a in registros if a["presente"])
-    total_faltas = sum(1 for a in registros if not a["presente"])
+    if ano_selecionado:
+        provas_validas = [p for p in provas_validas if p["data"].split("-")[0] == ano_selecionado]
+
+    meses = sorted({p["data"].split("-")[1] for p in agendamentos})
+    anos = sorted({p["data"].split("-")[0] for p in agendamentos})
+
+    total_presencas = sum(1 for p in provas_validas if p["presente"])
+    total_faltas = sum(1 for p in provas_validas if not p["presente"])
 
     return render_template(
         "admin.html",
-        agendamentos=registros,
-        total_presentes=total_presentes,
-        total_faltas=total_faltas,
-        mes=mes,
-        ano=ano
+        provas=provas_validas,
+        meses=meses,
+        anos=anos,
+        mes_selecionado=mes_selecionado,
+        ano_selecionado=ano_selecionado,
+        total_presencas=total_presencas,
+        total_faltas=total_faltas
     )
 
-# ================= PRESENÇA =================
-@app.route("/presenca/<int:id>")
-def presenca(id):
-    for a in agendamentos:
-        if a["id"] == id:
-            a["presente"] = True
-            break
-    return redirect("/admin")
+# -------------------------
+# MARCAR PRESENÇA
+# -------------------------
+@app.route("/presenca/<int:index>")
+def marcar_presenca(index):
+    if 0 <= index < len(agendamentos):
+        agendamentos[index]["presente"] = True
+    return redirect(url_for("admin"))
 
-# ================= RELATÓRIO EXCEL =================
-@app.route("/relatorio-excel")
-def relatorio_excel():
-    mes = request.args.get("mes")
-    ano = request.args.get("ano")
-
-    wb = Workbook()
+# -------------------------
+# RELATÓRIO EXCEL
+# -------------------------
+@app.route("/baixar-relatorio")
+def baixar_relatorio():
+    wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Relatório"
 
-    ws.append(["Aluno", "Disciplinas", "Data", "Hora", "Status"])
+    ws.append(["Nome", "Disciplinas", "Data", "Hora", "Presença"])
 
-    registros = agendamentos
-
-    if mes and ano:
-        registros = [
-            a for a in registros
-            if a["data"][5:7] == mes and a["data"][:4] == ano
-        ]
-
-    registros.sort(key=lambda x: (x["data"], x["hora"]))
-
-    for a in registros:
+    for p in agendamentos:
         ws.append([
-            a["nome"],
-            a["disciplinas"],
-            datetime.strptime(a["data"], "%Y-%m-%d").strftime("%d/%m/%Y"),
-            a["hora"],
-            "Presente" if a["presente"] else "Falta"
+            p["nome"],
+            ", ".join(p["disciplinas"]),
+            p["data"],
+            p["hora"],
+            "Presente" if p["presente"] else "Falta"
         ])
 
-    nome = f"relatorio_{mes or 'todos'}_{ano or 'anos'}.xlsx"
-    caminho = f"/tmp/{nome}"
-    wb.save(caminho)
+    file = io.BytesIO()
+    wb.save(file)
+    file.seek(0)
 
-    return send_file(caminho, as_attachment=True, download_name=nome)
+    return send_file(
+        file,
+        as_attachment=True,
+        download_name="relatorio_presencas.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
-# ================= LOGOUT =================
+# -------------------------
+# SAIR
+# -------------------------
 @app.route("/logout")
 def logout():
-    return redirect("/")
+    return redirect(url_for("agendar"))
 
+# -------------------------
+# START
+# -------------------------
 if __name__ == "__main__":
     app.run(debug=True)
