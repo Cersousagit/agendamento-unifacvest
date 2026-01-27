@@ -1,69 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+    <meta charset="UTF-8">
     <title>Admin - UNIFACVEST</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #b30000; /* vermelho institucional */
+        }
+
+        header {
+            background: #8b0000;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+
+        header img {
+            height: 60px;
+        }
+
+        header a {
+            background: #ff4d4d;
+            color: white;
+            padding: 8px 14px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #8b0000;
+        }
+
+        .filtros {
+            margin-bottom: 20px;
+        }
+
+        .filtros select, .filtros button {
+            padding: 6px;
+            margin-right: 5px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #f9f9f9;
+        }
+
+        .presente {
+            color: green;
+            font-weight: bold;
+        }
+
+        .ausente {
+            color: red;
+            font-weight: bold;
+        }
+
+        .dashboard {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .btn-download {
+            margin-top: 15px;
+            padding: 10px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-download:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
 
-<img src="/static/unifacvest.png" width="160">
+<header>
+    <img src="{{ url_for('static', filename='logo.png') }}">
+    <a href="{{ url_for('logout') }}">Sair</a>
+</header>
 
-<h2>Provas Agendadas</h2>
+<div class="container">
 
-<form method="get">
-    Mês:
-    <select name="mes">
-        <option value="">Todos</option>
-        {% for m in range(1,13) %}
-        <option value="{{ "%02d"|format(m) }}" {% if mes == "%02d"|format(m) %}selected{% endif %}>
-            {{ "%02d"|format(m) }}
-        </option>
-        {% endfor %}
-    </select>
+    <h2>Provas Agendadas</h2>
 
-    Ano:
-    <select name="ano">
-        <option value="">Todos</option>
-        {% for a in range(2025, 2031) %}
-        <option value="{{ a }}" {% if ano == a|string %}selected{% endif %}>{{ a }}</option>
-        {% endfor %}
-    </select>
+    <form method="get" class="filtros">
+        Mês:
+        <select name="mes">
+            <option value="">Todos</option>
+            {% for m in meses %}
+            <option value="{{ m }}" {% if m == mes_selecionado %}selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+        </select>
 
-    <button type="submit">Filtrar</button>
-</form>
+        Ano:
+        <select name="ano">
+            <option value="">Todos</option>
+            {% for a in anos %}
+            <option value="{{ a }}" {% if a == ano_selecionado %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+        </select>
 
-<br>
+        <button type="submit">Filtrar</button>
+    </form>
 
-{% for a in agendamentos %}
-<div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
-    <strong>{{ a.nome }}</strong><br>
-    Disciplinas: {{ a.disciplinas }}<br>
-    Data: {{ a.data }} | Hora: {{ a.hora }}<br>
+    {% for p in provas %}
+    <div class="card">
+        <strong>{{ p.nome }}</strong><br>
+        Disciplinas: {{ p.disciplinas }}<br>
+        Data: {{ p.data }} | Hora: {{ p.hora }}<br>
 
-    {% if not a.presente %}
-        <a href="{{ url_for('presenca', id=a.id) }}">
-            <button>Presente</button>
-        </a>
-    {% else %}
-        <span style="color:green;">✔ Presente</span>
-    {% endif %}
+        {% if p.presente %}
+            <span class="presente">✔ Presente</span>
+        {% else %}
+            <span class="ausente">✖ Ausente</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="dashboard">
+        <h2>Dashboard</h2>
+        <p>Total de presenças confirmadas: {{ total_presencas }}</p>
+        <p>Total de faltas: {{ total_faltas }}</p>
+
+        <form method="get" action="{{ url_for('baixar_relatorio') }}">
+            <button class="btn-download">📥 Baixar Relatório</button>
+        </form>
+    </div>
+
 </div>
-{% endfor %}
-
-<h3>Dashboard</h3>
-<p>Total de presenças confirmadas: {{ total_presentes }}</p>
-<p>Total de faltas: {{ total_faltas }}</p>
-
-<br>
-
-<a href="/relatorio-excel?mes={{ mes }}&ano={{ ano }}">
-    <button>📥 Baixar Relatório</button>
-</a>
-
-<br><br>
-
-<a href="/logout">
-    <button style="background:red;color:white;">Sair</button>
-</a>
 
 </body>
 </html>
