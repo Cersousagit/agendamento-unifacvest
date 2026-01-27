@@ -3,63 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <title>Agendamento</title>
+
 <style>
-body { font-family:Arial; background:#f4f6f8; }
+body {
+    font-family: Arial;
+    background: #f4f6f8;
+}
+
 header {
-    background:#003366;
-    color:white;
-    padding:15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    background: #003366;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-header img { height:45px; }
-a { color:white; text-decoration:none; background:#c62828; padding:8px 12px; border-radius:5px; }
+
+header img {
+    height: 40px;
+}
+
+a {
+    color: white;
+    background: red;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
 form {
-    background:white;
-    width:400px;
-    margin:40px auto;
-    padding:20px;
-    border-radius:8px;
+    background: white;
+    width: 420px;
+    margin: 40px auto;
+    padding: 25px;
+    border-radius: 8px;
 }
-input,button {
-    width:100%;
-    padding:10px;
-    margin-top:10px;
+
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
 }
+
 button {
-    background:#003366;
-    color:white;
-    border:none;
+    background: #003366;
+    color: white;
+    border: none;
 }
-.msg {
-    color:green;
-    margin-top:15px;
-    text-align:center;
+
+.success {
+    margin-top: 15px;
+    color: green;
+    text-align: center;
+    font-weight: bold;
 }
 </style>
 </head>
+
 <body>
 
 <header>
-<img src="{{ url_for('static', filename='unifacvest.png') }}">
-<a href="/logout">Sair</a>
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    <a href="/logout">Sair</a>
 </header>
 
 <form method="POST">
-<h3>Agendamento de Provas</h3>
+    <h3>Agendamento de Provas</h3>
 
-<input type="text" name="nome" placeholder="Nome do aluno" required>
-<input type="text" name="disciplinas" placeholder="Disciplinas" required>
-<input type="date" name="data" required>
-<input type="time" name="hora" required>
+    <p>Preencha corretamente os dados abaixo para solicitar sua prova.</p>
 
-<button type="submit">Enviar</button>
+    <input type="text" name="nome" placeholder="Nome do aluno" required>
+    <input type="text" name="disciplinas" placeholder="Disciplinas" required>
+    <input type="date" name="data" required>
+    <input type="time" name="hora" required>
 
-{% if msg %}
-<div class="msg">{{ msg }}</div>
-{% endif %}
+    <button type="submit">Enviar</button>
 
+    {% if msg %}
+        <div class="success">✔ {{ msg }}</div>
+    {% endif %}
 </form>
 
 </body>
