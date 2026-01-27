@@ -1,6 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, request
-from datetime import date
+from flask import Flask, render_template, redirect, url_for, request, send_file
+from datetime import date, datetime
 import itertools
+from openpyxl import Workbook
 
 app = Flask(__name__)
 
@@ -57,12 +58,12 @@ def agendar():
 def admin():
     hoje = date.today().isoformat()
 
-    # 🔥 REMOVE PROVAS COM DATA PASSADA
+    # Remove provas vencidas
     agendamentos_validos = [
         a for a in agendamentos if a["data"] >= hoje
     ]
 
-    # Ordenar por data + hora
+    # Ordena por data e hora
     agendamentos_validos.sort(
         key=lambda x: (x["data"], x["hora"])
     )
@@ -87,6 +88,51 @@ def presenca(id):
             a["presente"] = True
             break
     return redirect("/admin")
+
+# ======================
+# RELATÓRIO EXCEL
+# ======================
+@app.route("/relatorio-excel")
+def relatorio_excel():
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Relatório de Presença"
+
+    # Cabeçalho
+    ws.append([
+        "Nome do Aluno",
+        "Disciplinas",
+        "Data",
+        "Hora",
+        "Status"
+    ])
+
+    # Apenas presenças confirmadas
+    registros = [
+        a for a in agendamentos if a["presente"]
+    ]
+
+    # Ordenar por data
+    registros.sort(key=lambda x: (x["data"], x["hora"]))
+
+    for a in registros:
+        ws.append([
+            a["nome"],
+            a["disciplinas"],
+            datetime.strptime(a["data"], "%Y-%m-%d").strftime("%d/%m/%Y"),
+            a["hora"],
+            "Presente"
+        ])
+
+    nome_arquivo = f"relatorio_presenca_{date.today().strftime('%m_%Y')}.xlsx"
+    caminho = f"/tmp/{nome_arquivo}"
+    wb.save(caminho)
+
+    return send_file(
+        caminho,
+        as_attachment=True,
+        download_name=nome_arquivo
+    )
 
 # ======================
 # LOGOUT
