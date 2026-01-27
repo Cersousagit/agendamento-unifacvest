@@ -2,22 +2,63 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Login - UNIFACVEST</title>
+<title>Login - Sistema de Provas</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #b71c1c;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    width: 350px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.card img {
+    width: 180px;
+    margin-bottom: 20px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background: #b71c1c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+</style>
 </head>
+
 <body>
 
-<img src="/static/unifacvest.png" width="180">
-
-<form method="POST" action="/login">
-    <p>Usuário:</p>
-    <input type="text" name="usuario">
-
-    <p>Senha:</p>
-    <input type="password" name="senha">
-
-    <br><br>
-    <button type="submit">Entrar</button>
-</form>
+<div class="card">
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+    
+    <form method="POST" action="/login">
+        <input type="text" name="usuario" placeholder="Usuário" required>
+        <input type="password" name="senha" placeholder="Senha" required>
+        <button type="submit">Entrar</button>
+    </form>
+</div>
 
 </body>
 </html>
