@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, request
 import itertools
 
 app = Flask(__name__)
@@ -18,36 +18,37 @@ def fazer_login():
     if usuario == "admin" and senha == "admin123":
         return redirect("/admin")
     elif senha == "aluno123":
-        return redirect("/agendar")
+        return redirect("/aluno")
     else:
         return redirect("/")
 
-@app.route("/agendar", methods=["GET", "POST"])
+@app.route("/aluno")
+def aluno():
+    return render_template("agendar.html")
+
+@app.route("/agendar", methods=["POST"])
 def agendar():
-    msg = None
-    if request.method == "POST":
-        agendamentos.append({
-            "id": next(contador_id),
-            "nome": request.form["nome"],
-            "disciplinas": request.form["disciplinas"],
-            "data": request.form["data"],
-            "hora": request.form["hora"],
-            "presente": False
-        })
-        msg = "Prova agendada com sucesso!"
+    agendamentos.append({
+        "id": next(contador_id),
+        "nome": request.form["nome"],
+        "disciplinas": request.form["disciplinas"],
+        "data": request.form["data"],
+        "hora": request.form["hora"],
+        "presente": False
+    })
+
+    # ✅ mensagem de sucesso
+    msg = "Agendamento realizado com sucesso!"
 
     return render_template("agendar.html", msg=msg)
 
 @app.route("/admin")
 def admin():
     total_presentes = sum(1 for a in agendamentos if a["presente"])
-    total_ausentes = len(agendamentos) - total_presentes
-
     return render_template(
         "admin.html",
         agendamentos=agendamentos,
-        total_presentes=total_presentes,
-        total_ausentes=total_ausentes
+        total_presentes=total_presentes
     )
 
 @app.route("/presenca/<int:id>")
@@ -63,4 +64,4 @@ def logout():
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
