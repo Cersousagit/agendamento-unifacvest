@@ -12,8 +12,8 @@ def login():
 
 @app.route("/login", methods=["POST"])
 def fazer_login():
-    usuario = request.form.get("usuario")
-    senha = request.form.get("senha")
+    usuario = request.form["usuario"]
+    senha = request.form["senha"]
 
     if usuario == "admin" and senha == "admin123":
         return redirect("/admin")
@@ -25,37 +25,29 @@ def fazer_login():
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     msg = None
-
     if request.method == "POST":
-        disciplinas_lista = request.form.getlist("disciplinas[]")
-        disciplinas = ", ".join(disciplinas_lista)
-
         agendamentos.append({
             "id": next(contador_id),
-            "nome": request.form.get("nome"),
-            "disciplinas": disciplinas,
-            "data": request.form.get("data"),
-            "hora": request.form.get("hora"),
+            "nome": request.form["nome"],
+            "disciplinas": request.form["disciplinas"],
+            "data": request.form["data"],
+            "hora": request.form["hora"],
             "presente": False
         })
-
         msg = "Prova agendada com sucesso!"
 
     return render_template("agendar.html", msg=msg)
 
-
 @app.route("/admin")
 def admin():
-    total = len(agendamentos)
-    presentes = sum(1 for a in agendamentos if a["presente"])
-    ausentes = total - presentes
+    total_presentes = sum(1 for a in agendamentos if a["presente"])
+    total_ausentes = len(agendamentos) - total_presentes
 
     return render_template(
         "admin.html",
         agendamentos=agendamentos,
-        total=total,
-        presentes=presentes,
-        ausentes=ausentes
+        total_presentes=total_presentes,
+        total_ausentes=total_ausentes
     )
 
 @app.route("/presenca/<int:id>")
@@ -71,4 +63,4 @@ def logout():
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run()
