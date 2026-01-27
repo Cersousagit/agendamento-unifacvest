@@ -5,57 +5,59 @@
 <title>Agendamento</title>
 
 <style>
-body {
-    font-family: Arial;
-    background: #f4f6f8;
-}
+body { font-family:Arial; background:#f4f6f8; }
 
 header {
-    background: #003366;
-    color: white;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background:#003366;
+    color:white;
+    padding:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-header img {
-    height: 40px;
-}
+header img { height:45px; }
 
 a {
-    color: white;
-    background: red;
-    padding: 8px 12px;
-    border-radius: 5px;
-    text-decoration: none;
+    color:white;
+    text-decoration:none;
+    background:#c62828;
+    padding:8px 12px;
+    border-radius:5px;
 }
 
 form {
-    background: white;
-    width: 420px;
-    margin: 40px auto;
-    padding: 25px;
-    border-radius: 8px;
+    background:white;
+    width:420px;
+    margin:30px auto;
+    padding:20px;
+    border-radius:8px;
 }
 
 input, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
+    width:100%;
+    padding:10px;
+    margin-top:10px;
 }
 
 button {
-    background: #003366;
-    color: white;
-    border: none;
+    background:#003366;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+.plus-btn {
+    width:auto;
+    background:#2e7d32;
+    margin-top:5px;
 }
 
 .success {
-    margin-top: 15px;
-    color: green;
-    text-align: center;
-    font-weight: bold;
+    color:green;
+    margin-top:15px;
+    text-align:center;
+    font-weight:bold;
 }
 </style>
 </head>
@@ -70,10 +72,20 @@ button {
 <form method="POST">
     <h3>Agendamento de Provas</h3>
 
-    <p>Preencha corretamente os dados abaixo para solicitar sua prova.</p>
+    <p>
+        👉 Informe seus dados abaixo.  
+        Você pode adicionar <strong>quantas disciplinas precisar</strong> clicando no botão <strong>➕</strong>.
+    </p>
 
     <input type="text" name="nome" placeholder="Nome do aluno" required>
-    <input type="text" name="disciplinas" placeholder="Disciplinas" required>
+
+    <!-- DISCIPLINAS DINÂMICAS -->
+    <div id="disciplinas-area">
+        <input type="text" name="disciplinas[]" placeholder="Disciplina 1" required>
+    </div>
+
+    <button type="button" class="plus-btn" onclick="addDisciplina()">➕ Adicionar outra disciplina</button>
+
     <input type="date" name="data" required>
     <input type="time" name="hora" required>
 
@@ -83,6 +95,17 @@ button {
         <div class="success">✔ {{ msg }}</div>
     {% endif %}
 </form>
+
+<script>
+let count = 1;
+
+function addDisciplina() {
+    count++;
+    const div = document.createElement("div");
+    div.innerHTML = `<input type="text" name="disciplinas[]" placeholder="Disciplina ${count}" required>`;
+    document.getElementById("disciplinas-area").appendChild(div);
+}
+</script>
 
 </body>
 </html>
