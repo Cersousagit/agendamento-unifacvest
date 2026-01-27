@@ -1,13 +1,13 @@
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, url_for, request
 import itertools
+import os
 
 app = Flask(__name__)
-app.secret_key = "unifacvest"
 
-# Banco de dados em memória
 agendamentos = []
 contador_id = itertools.count(1)
 
+# LOGIN
 @app.route("/")
 def login():
     return render_template("login.html")
@@ -24,9 +24,11 @@ def fazer_login():
     else:
         return redirect("/")
 
+# ALUNO / AGENDAMENTO
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
-    msg = ""
+    msg = None
+
     if request.method == "POST":
         agendamentos.append({
             "id": next(contador_id),
@@ -36,12 +38,19 @@ def agendar():
             "hora": request.form["hora"],
             "presente": False
         })
-        msg = "Agendamento realizado com sucesso!"
+        msg = "✅ Prova agendada com sucesso!"
+
     return render_template("agendar.html", msg=msg)
 
+# ADMIN
 @app.route("/admin")
 def admin():
-    return render_template("admin.html", agendamentos=agendamentos)
+    total_presentes = sum(1 for a in agendamentos if a["presente"])
+    return render_template(
+        "admin.html",
+        agendamentos=agendamentos,
+        total_presentes=total_presentes
+    )
 
 @app.route("/presenca/<int:id>")
 def presenca(id):
@@ -54,3 +63,5 @@ def presenca(id):
 @app.route("/logout")
 def logout():
     return redirect("/")
+
+# ⚠️ NÃO USAR app.run() NO RENDER
