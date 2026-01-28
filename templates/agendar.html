@@ -3,21 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Agendamento</title>
-<script>
-function addDisciplina() {
-    const input = document.getElementById("disc");
-    if (input.value.trim() !== "") {
-        const div = document.createElement("div");
-        div.innerHTML = `
-            <input type="hidden" name="disciplinas[]" value="${input.value}">
-            ${input.value}
-            <button type="button" onclick="this.parentElement.remove()">❌</button>
-        `;
-        document.getElementById("lista").appendChild(div);
-        input.value = "";
-    }
-}
-</script>
 </head>
 <body>
 
@@ -25,21 +10,15 @@ function addDisciplina() {
 
 <form method="post">
 <input name="nome" placeholder="Nome completo" required><br><br>
-
-<input id="disc" placeholder="Digite a disciplina">
-<button type="button" onclick="addDisciplina()">➕</button>
-
-<div id="lista"></div><br>
-
+<input name="disciplina" placeholder="Disciplina" required><br><br>
 <input type="date" name="data" required><br><br>
 <input type="time" name="hora" required><br><br>
 
 <button>Confirmar Agendamento</button>
 </form>
 
-{% if msg %}
-<p style="color:green">{{ msg }}</p>
-{% endif %}
+<br>
+<a href="/sair">Sair</a>
 
 </body>
 </html>
