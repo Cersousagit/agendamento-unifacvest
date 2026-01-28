@@ -1,48 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Login Aluno</title>
+<title>Login</title>
 <style>
-body {
-    background: #c62828;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: Arial;
+body{
+    margin:0;
+    background:#b71c1c;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:Arial;
 }
-.box {
-    background: #fff;
-    padding: 30px;
-    border-radius: 10px;
+.card{
+    background:white;
+    padding:30px;
+    width:350px;
+    border-radius:8px;
+    text-align:center;
 }
-input, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
+.card img{width:180px;margin-bottom:20px;}
+input,button{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
 }
-button {
-    background: #c62828;
-    color: #fff;
-    border: none;
+button{
+    background:#b71c1c;
+    color:white;
+    border:none;
 }
 </style>
 </head>
 <body>
-
-<div class="box">
-<h2>Acesso do Aluno</h2>
-<form method="post">
-<input name="usuario" placeholder="Usuário">
-<input type="password" name="senha" placeholder="Senha">
+<div class="card">
+<img src="{{ url_for('static', filename='unifacvest.png') }}">
+<form method="POST" action="/login">
+<input name="usuario" placeholder="Usuário" required>
+<input type="password" name="senha" placeholder="Senha" required>
 <button>Entrar</button>
 </form>
-
-{% if erro %}
-<p style="color:red">{{ erro }}</p>
-{% endif %}
 </div>
-
 </body>
 </html>
