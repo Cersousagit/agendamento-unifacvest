@@ -1,104 +1,86 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
-from datetime import datetime, date
-from openpyxl import Workbook
-import io
+from flask import Flask, render_template, request, redirect, url_for, session
+from datetime import date
 
 app = Flask(__name__)
+app.secret_key = "chave_secreta_segura"
 
-agendamentos = []
+provas = []
 
+# ======================
+# LOGIN PADRÃO (ALUNO)
+# ======================
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         return redirect("/agendar")
     return render_template("login.html")
 
-
+# ======================
+# AGENDAMENTO
+# ======================
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
-    msg = None
+    msg = ""
     if request.method == "POST":
-        nome = request.form.get("nome")
-        disciplinas = request.form.getlist("disciplinas[]")
-        data = request.form.get("data")
-        hora = request.form.get("hora")
-
-        if not nome or not disciplinas:
-            return "Bad Request", 400
-
-        agendamentos.append({
-            "nome": nome,
-            "disciplinas": disciplinas,
-            "data": data,
-            "hora": hora,
-            "presente": None
+        provas.append({
+            "nome": request.form["nome"],
+            "disciplinas": request.form.getlist("disciplinas[]"),
+            "data": request.form["data"],
+            "hora": request.form["hora"],
+            "presenca": None
         })
-
         msg = "Agendamento realizado com sucesso"
-
     return render_template("agendar.html", msg=msg)
 
+# ======================
+# LOGIN ADMIN
+# ======================
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    erro = ""
+    if request.method == "POST":
+        if request.form["usuario"] == "admin" and request.form["senha"] == "1234":
+            session["admin"] = True
+            return redirect("/admin")
+        else:
+            erro = "Usuário ou senha inválidos"
+    return render_template("admin_login.html", erro=erro)
 
+# ======================
+# DASHBOARD ADMIN
+# ======================
 @app.route("/admin")
 def admin():
-    hoje = date.today()
+    if not session.get("admin"):
+        return redirect("/admin/login")
 
-    ativos = [
-        a for a in agendamentos
-        if datetime.strptime(a["data"], "%Y-%m-%d").date() >= hoje
-    ]
+    hoje = date.today().isoformat()
+    provas_validas = [p for p in provas if p["data"] >= hoje]
 
-    ativos.sort(key=lambda x: (x["data"], x["hora"]))
-
-    presencas = sum(1 for a in ativos if a["presente"] is True)
-    faltas = sum(1 for a in ativos if a["presente"] is False)
+    total_presencas = sum(1 for p in provas if p["presenca"] == "Presente")
 
     return render_template(
         "admin.html",
-        agendamentos=ativos,
-        presencas=presencas,
-        faltas=faltas
+        provas=provas_validas,
+        total=total_presencas
     )
 
-
-@app.route("/presenca/<int:i>")
-def presenca(i):
-    agendamentos[i]["presente"] = True
+# ======================
+# CONFIRMAR PRESENÇA
+# ======================
+@app.route("/confirmar/<int:i>/<status>")
+def confirmar(i, status):
+    if session.get("admin"):
+        provas[i]["presenca"] = status
     return redirect("/admin")
 
-
-@app.route("/falta/<int:i>")
-def falta(i):
-    agendamentos[i]["presente"] = False
-    return redirect("/admin")
-
-
-@app.route("/relatorio")
-def relatorio():
-    wb = Workbook()
-    ws = wb.active
-    ws.append(["Nome", "Disciplinas", "Data", "Hora", "Status"])
-
-    for a in agendamentos:
-        status = "Presente" if a["presente"] else "Falta"
-        ws.append([
-            a["nome"],
-            ", ".join(a["disciplinas"]),
-            a["data"],
-            a["hora"],
-            status
-        ])
-
-    file = io.BytesIO()
-    wb.save(file)
-    file.seek(0)
-
-    return send_file(
-        file,
-        download_name="relatorio_presenca.xlsx",
-        as_attachment=True
-    )
-
+# ======================
+# SAIR ADMIN
+# ======================
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("admin", None)
+    return redirect("/admin/login")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)
