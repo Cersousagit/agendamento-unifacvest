@@ -3,47 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin</title>
-<style>
-body { font-family: Arial; background: #f5f5f5; }
-.box { background: #fff; padding: 20px; width: 500px; margin: 40px auto; }
-.card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-</style>
 </head>
 <body>
 
-<div class="box">
-
 {% if login %}
-<h2>Login Polo</h2>
+<h2>Login Admin</h2>
 <form method="post">
 <input name="usuario" placeholder="Usuário"><br><br>
 <input type="password" name="senha" placeholder="Senha"><br><br>
 <button>Entrar</button>
 </form>
-{% if erro %}<p style="color:red">{{ erro }}</p>{% endif %}
+
+{% if erro %}
+<p style="color:red">{{ erro }}</p>
+{% endif %}
 
 {% else %}
-<h2>Provas Agendadas</h2>
-<p>Total de presenças confirmadas: {{ total }}</p>
+<h2>Agendamentos</h2>
 
-{% for p in provas %}
-<div class="card">
-<b>{{ p.nome }}</b><br>
-Disciplinas: {{ p.disciplinas|join(", ") }}<br>
-Data: {{ p.data }} | Hora: {{ p.hora }}<br>
+{% for a in agendamentos %}
+<div style="border:1px solid #ccc; padding:10px; margin:10px">
+<b>{{ a.nome }}</b><br>
+{{ a.disciplina }}<br>
+{{ a.data }} - {{ a.hora }}<br>
+Status: {{ a.status }}<br>
 
-{% if p.presenca %}
-{{ p.presenca }}
-{% else %}
 <a href="/confirmar/{{ loop.index0 }}/Presente">✔ Presente</a>
 <a href="/confirmar/{{ loop.index0 }}/Falta">❌ Falta</a>
-{% endif %}
 </div>
 {% endfor %}
 
-<a href="/admin/sair">Sair</a>
+<a href="/sair">Sair</a>
 {% endif %}
 
-</div>
 </body>
 </html>
