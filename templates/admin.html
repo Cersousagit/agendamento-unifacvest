@@ -1,155 +1,33 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Admin - UNIFACVEST</title>
-
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #b30000; /* vermelho institucional */
-        }
-
-        header {
-            background: #8b0000;
-            padding: 15px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: white;
-        }
-
-        header img {
-            height: 60px;
-        }
-
-        header a {
-            background: #ff4d4d;
-            color: white;
-            padding: 8px 14px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-
-        h2 {
-            margin-top: 0;
-            color: #8b0000;
-        }
-
-        .filtros {
-            margin-bottom: 20px;
-        }
-
-        .filtros select, .filtros button {
-            padding: 6px;
-            margin-right: 5px;
-        }
-
-        .card {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 12px;
-            background: #f9f9f9;
-        }
-
-        .presente {
-            color: green;
-            font-weight: bold;
-        }
-
-        .ausente {
-            color: red;
-            font-weight: bold;
-        }
-
-        .dashboard {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-        }
-
-        .btn-download {
-            margin-top: 15px;
-            padding: 10px 16px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .btn-download:hover {
-            background: #0056b3;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Admin</title>
+<style>
+body{font-family:Arial}
+.box{width:700px;margin:auto}
+</style>
 </head>
 <body>
 
-<header>
-    <img src="{{ url_for('static', filename='logo.png') }}">
-    <a href="{{ url_for('logout') }}">Sair</a>
-</header>
+<div class="box">
+<h2>Provas Agendadas</h2>
 
-<div class="container">
+{% for a in agendamentos %}
+<hr>
+<b>{{a.nome}}</b><br>
+Disciplinas: {{a.disciplinas|join(", ")}}<br>
+Data: {{a.data}} | Hora: {{a.hora}}<br>
+<a href="/presenca/{{loop.index0}}">✔ Presente</a>
+<a href="/falta/{{loop.index0}}">❌ Falta</a>
+{% endfor %}
 
-    <h2>Provas Agendadas</h2>
+<h3>Dashboard</h3>
+Presenças: {{presencas}}<br>
+Faltas: {{faltas}}<br><br>
 
-    <form method="get" class="filtros">
-        Mês:
-        <select name="mes">
-            <option value="">Todos</option>
-            {% for m in meses %}
-            <option value="{{ m }}" {% if m == mes_selecionado %}selected{% endif %}>{{ m }}</option>
-            {% endfor %}
-        </select>
-
-        Ano:
-        <select name="ano">
-            <option value="">Todos</option>
-            {% for a in anos %}
-            <option value="{{ a }}" {% if a == ano_selecionado %}selected{% endif %}>{{ a }}</option>
-            {% endfor %}
-        </select>
-
-        <button type="submit">Filtrar</button>
-    </form>
-
-    {% for p in provas %}
-    <div class="card">
-        <strong>{{ p.nome }}</strong><br>
-        Disciplinas: {{ p.disciplinas }}<br>
-        Data: {{ p.data }} | Hora: {{ p.hora }}<br>
-
-        {% if p.presente %}
-            <span class="presente">✔ Presente</span>
-        {% else %}
-            <span class="ausente">✖ Ausente</span>
-        {% endif %}
-    </div>
-    {% endfor %}
-
-    <div class="dashboard">
-        <h2>Dashboard</h2>
-        <p>Total de presenças confirmadas: {{ total_presencas }}</p>
-        <p>Total de faltas: {{ total_faltas }}</p>
-
-        <form method="get" action="{{ url_for('baixar_relatorio') }}">
-            <button class="btn-download">📥 Baixar Relatório</button>
-        </form>
-    </div>
-
+<a href="/relatorio">📥 Baixar Relatório</a><br><br>
+<a href="/">Sair</a>
 </div>
 
 </body>
