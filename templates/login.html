@@ -1,19 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Acesso</title>
+<title>Acesso - UNIFACVEST</title>
 <style>
-body{background:#c62828;font-family:Arial}
-.box{background:#fff;width:300px;margin:100px auto;padding:20px;border-radius:8px;text-align:center}
+body {
+    margin: 0;
+    height: 100vh;
+    background: #c62828;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+.box {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    text-align: center;
+    width: 320px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+.logo {
+    width: 120px;
+    margin-bottom: 15px;
+}
+button {
+    padding: 10px 25px;
+    border: none;
+    background: #c62828;
+    color: #fff;
+    font-size: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background: #a61d1d;
+}
 </style>
 </head>
 <body>
+
 <div class="box">
-<h2>UNIFACVEST</h2>
-<form method="post">
-<button>Entrar</button>
-</form>
+    <img src="/static/unifacvest.png" class="logo">
+    <h2>UNIFACVEST</h2>
+    <form method="post">
+        <button type="submit">Entrar</button>
+    </form>
 </div>
+
 </body>
 </html>
