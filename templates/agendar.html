@@ -1,217 +1,62 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Agendamento de Provas - UNIFACVEST</title>
-
+<title>Agendamento</title>
 <style>
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #8b0000;
-}
-
-.container {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.box {
-    background: #ffffff;
-    width: 420px;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-}
-
-.header {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.header img {
-    width: 160px;
-}
-
-.sair {
-    text-align: right;
-    margin-bottom: 10px;
-}
-
-.sair a {
-    background: #c62828;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
-}
-
-h3 {
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.instrucoes {
-    background: #f5f5f5;
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-}
-
-input, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    box-sizing: border-box;
-}
-
-button {
-    background: #003366;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:hover {
-    opacity: 0.9;
-}
-
-.disciplina-box {
-    display: flex;
-    gap: 6px;
-    margin-top: 5px;
-}
-
-.disciplina-box input {
-    flex: 1;
-}
-
-.add {
-    background: #2e7d32;
-    width: 40px;
-}
-
-.lista {
-    margin-top: 10px;
-}
-
-.item {
-    background: #e0e0e0;
-    padding: 6px 8px;
-    border-radius: 5px;
-    margin-top: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.item span {
-    cursor: pointer;
-    color: red;
-    font-weight: bold;
-}
-
-.msg {
-    background: #e8f5e9;
-    color: #2e7d32;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    text-align: center;
-    font-weight: bold;
-}
+body{background:#c62828;font-family:Arial}
+.box{background:#fff;width:400px;margin:40px auto;padding:20px;border-radius:8px}
 </style>
 </head>
-
 <body>
 
-<div class="container">
 <div class="box">
+<h2>Agendamento de Provas</h2>
 
-    <div class="header">
-        <img src="{{ url_for('static', filename='unifacvest.png') }}">
-    </div>
+<p>Digite a disciplina, clique em ➕ para adicionar. Use ❌ para remover.</p>
 
-    <div class="sair">
-        <a href="/logout">Sair</a>
-    </div>
+<form method="post">
+<input name="nome" placeholder="Nome completo" required><br><br>
 
-    <h3>Agendamento de Provas</h3>
+<input id="disc" placeholder="Disciplina">
+<button type="button" onclick="add()">➕</button>
 
-    <div class="instrucoes">
-        Digite o <b>nome completo</b> do aluno.<br>
-        Digite a disciplina, clique em ➕ para adicionar.<br>
-        Caso erre, utilize o ❌ para remover.
-    </div>
+<ul id="lista"></ul>
+<input type="hidden" name="disciplinas[]" id="disciplinas">
 
-    <!-- ✅ MENSAGEM DE SUCESSO -->
-    {% if msg %}
-    <div class="msg">
-        {{ msg }}
-    </div>
-    {% endif %}
+<br>
+<input type="date" name="data" required><br><br>
+<input type="time" name="hora" required><br><br>
 
-    <form method="POST" action="/agendar">
+<button>Confirmar Agendamento</button>
+</form>
 
-        <input type="text" name="nome" placeholder="Nome completo do aluno" required>
+{% if msg %}
+<p style="color:green">{{msg}}</p>
+{% endif %}
 
-        <div class="disciplina-box">
-            <input type="text" id="disciplinaInput" placeholder="Digite a disciplina">
-            <button type="button" class="add" onclick="addDisciplina()">➕</button>
-        </div>
-
-        <div class="lista" id="lista"></div>
-
-        <input type="hidden" name="disciplinas" id="disciplinasHidden" required>
-
-        <input type="date" name="data" required>
-        <input type="time" name="hora" required>
-
-        <button type="submit">Confirmar Agendamento</button>
-    </form>
-
-</div>
+<a href="/">Sair</a>
 </div>
 
 <script>
-let disciplinas = [];
-
-function addDisciplina() {
-    const input = document.getElementById("disciplinaInput");
-    const valor = input.value.trim();
-
-    if (valor === "") return;
-
-    disciplinas.push(valor);
-    input.value = "";
-    atualizarLista();
+let d = [];
+function add(){
+  let v = document.getElementById("disc").value;
+  if(!v) return;
+  d.push(v);
+  render();
 }
-
-function remover(index) {
-    disciplinas.splice(index, 1);
-    atualizarLista();
+function rem(i){
+  d.splice(i,1);
+  render();
 }
-
-function atualizarLista() {
-    const lista = document.getElementById("lista");
-    const hidden = document.getElementById("disciplinasHidden");
-
-    lista.innerHTML = "";
-    disciplinas.forEach((d, i) => {
-        lista.innerHTML += `
-            <div class="item">
-                ${d}
-                <span onclick="remover(${i})">❌</span>
-            </div>
-        `;
-    });
-
-    hidden.value = disciplinas.join(", ");
+function render(){
+  let ul=document.getElementById("lista");
+  ul.innerHTML="";
+  d.forEach((x,i)=>{
+    ul.innerHTML+=`<li>${x} <button onclick="rem(${i})">❌</button></li>`;
+  });
+  document.getElementById("disciplinas").value=d;
 }
 </script>
 
