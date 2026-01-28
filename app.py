@@ -10,7 +10,7 @@ agendamentos = []
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        return redirect(url_for("agendar"))
+        return redirect("/agendar")
     return render_template("login.html")
 
 
@@ -24,7 +24,7 @@ def agendar():
         hora = request.form.get("hora")
 
         if not nome or not disciplinas:
-            return redirect(url_for("agendar"))
+            return "Bad Request", 400
 
         agendamentos.append({
             "nome": nome,
@@ -33,6 +33,7 @@ def agendar():
             "hora": hora,
             "presente": None
         })
+
         msg = "Agendamento realizado com sucesso"
 
     return render_template("agendar.html", msg=msg)
@@ -60,16 +61,16 @@ def admin():
     )
 
 
-@app.route("/presenca/<int:index>")
-def presenca(index):
-    agendamentos[index]["presente"] = True
-    return redirect(url_for("admin"))
+@app.route("/presenca/<int:i>")
+def presenca(i):
+    agendamentos[i]["presente"] = True
+    return redirect("/admin")
 
 
-@app.route("/falta/<int:index>")
-def falta(index):
-    agendamentos[index]["presente"] = False
-    return redirect(url_for("admin"))
+@app.route("/falta/<int:i>")
+def falta(i):
+    agendamentos[i]["presente"] = False
+    return redirect("/admin")
 
 
 @app.route("/relatorio")
