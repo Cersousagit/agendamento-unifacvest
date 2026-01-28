@@ -1,130 +1,45 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Agendamento de Provas</title>
-<style>
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: #c62828;
-    font-family: Arial, sans-serif;
+<title>Agendamento</title>
+<script>
+function addDisciplina() {
+    const input = document.getElementById("disc");
+    if (input.value.trim() !== "") {
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <input type="hidden" name="disciplinas[]" value="${input.value}">
+            ${input.value}
+            <button type="button" onclick="this.parentElement.remove()">❌</button>
+        `;
+        document.getElementById("lista").appendChild(div);
+        input.value = "";
+    }
 }
-.container {
-    width: 420px;
-    background: #fff;
-    margin: 40px auto;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-}
-h2 {
-    text-align: center;
-}
-p {
-    font-size: 14px;
-    background: #f5f5f5;
-    padding: 10px;
-    border-left: 4px solid #c62828;
-}
-input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 6px;
-}
-button {
-    padding: 8px 12px;
-    background: #c62828;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-button:hover {
-    background: #a61d1d;
-}
-ul {
-    padding-left: 20px;
-}
-li button {
-    background: none;
-    color: red;
-    font-size: 14px;
-}
-.sair {
-    display: block;
-    margin-top: 15px;
-    text-align: center;
-}
-</style>
+</script>
 </head>
 <body>
 
-<div class="container">
-    <h2>Agendamento de Provas</h2>
+<h2>Agendamento de Provas</h2>
 
-    <p>
-        Instruções:<br>
-        • Digite o nome da disciplina<br>
-        • Clique em ➕ para adicionar<br>
-        • Use ❌ para remover se errar<br>
-        • Não há limite de disciplinas
-    </p>
+<form method="post">
+<input name="nome" placeholder="Nome completo" required><br><br>
 
-    <form method="post">
-        <label>Nome completo</label>
-        <input name="nome" required>
+<input id="disc" placeholder="Digite a disciplina">
+<button type="button" onclick="addDisciplina()">➕</button>
 
-        <label>Disciplina</label>
-        <input id="disciplina">
-        <button type="button" onclick="add()">➕ Adicionar</button>
+<div id="lista"></div><br>
 
-        <ul id="lista"></ul>
-        <input type="hidden" name="disciplinas[]" id="disciplinas">
+<input type="date" name="data" required><br><br>
+<input type="time" name="hora" required><br><br>
 
-        <label>Data</label>
-        <input type="date" name="data" required>
+<button>Confirmar Agendamento</button>
+</form>
 
-        <label>Hora</label>
-        <input type="time" name="hora" required>
-
-        <br><br>
-        <button type="submit">Confirmar Agendamento</button>
-    </form>
-
-    {% if msg %}
-        <p style="color:green; text-align:center;"><b>{{ msg }}</b></p>
-    {% endif %}
-
-    <a href="/" class="sair">Sair</a>
-</div>
-
-<script>
-let disciplinas = [];
-
-function add() {
-    let campo = document.getElementById("disciplina");
-    if (!campo.value) return;
-
-    disciplinas.push(campo.value);
-    campo.value = "";
-    render();
-}
-
-function remover(i) {
-    disciplinas.splice(i, 1);
-    render();
-}
-
-function render() {
-    let ul = document.getElementById("lista");
-    ul.innerHTML = "";
-    disciplinas.forEach((d, i) => {
-        ul.innerHTML += `<li>${d} <button type="button" onclick="remover(${i})">❌</button></li>`;
-    });
-    document.getElementById("disciplinas").value = disciplinas;
-}
-</script>
+{% if msg %}
+<p style="color:green">{{ msg }}</p>
+{% endif %}
 
 </body>
 </html>
