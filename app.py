@@ -1,69 +1,66 @@
 from flask import Flask, render_template, request, redirect, session, url_for
-from datetime import date
 
 app = Flask(__name__)
-app.secret_key = "segredo_seguro"
+app.secret_key = "chave_secreta"
 
 # ======================
 # DADOS EM MEMÓRIA
 # ======================
-provas = []
+agendamentos = []
 
 # ======================
 # LOGIN ALUNO
 # ======================
 @app.route("/", methods=["GET", "POST"])
 def login():
+    erro = ""
     if request.method == "POST":
-        session["aluno"] = request.form["nome"]
-        return redirect("/agendar")
-    return render_template("login.html")
+        if request.form["usuario"] == "aluno" and request.form["senha"] == "aluno123":
+            session["aluno"] = True
+            return redirect("/agendar")
+        else:
+            erro = "Login inválido"
+    return render_template("login.html", erro=erro)
 
 # ======================
 # AGENDAMENTO ALUNO
 # ======================
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
-    if "aluno" not in session:
+    if not session.get("aluno"):
         return redirect("/")
 
-    msg = ""
     if request.method == "POST":
-        provas.append({
+        agendamentos.append({
             "nome": request.form["nome"],
-            "disciplinas": request.form.getlist("disciplinas[]"),
+            "disciplina": request.form["disciplina"],
             "data": request.form["data"],
             "hora": request.form["hora"],
-            "presenca": None
+            "status": "Pendente"
         })
-        msg = "Agendamento realizado com sucesso"
 
-    return render_template("agendar.html", msg=msg)
+    return render_template("agendar.html")
 
 # ======================
-# LOGIN ADMIN (POLO)
+# LOGIN + PAINEL ADMIN
 # ======================
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
+    erro = ""
+
     if request.method == "POST":
-        if request.form["usuario"] == "admin" and request.form["senha"] == "1234":
+        if request.form["usuario"] == "admin" and request.form["senha"] == "admin123":
             session["admin"] = True
         else:
-            return render_template("admin.html", erro="Login inválido", provas=[])
+            erro = "Login inválido"
 
     if not session.get("admin"):
-        return render_template("admin.html", provas=[], login=True)
-
-    hoje = date.today().isoformat()
-    provas_ativas = [p for p in provas if p["data"] >= hoje]
-
-    total = sum(1 for p in provas if p["presenca"] == "Presente")
+        return render_template("admin.html", login=True, erro=erro, agendamentos=[])
 
     return render_template(
         "admin.html",
-        provas=provas_ativas,
-        total=total,
-        login=False
+        login=False,
+        agendamentos=agendamentos
     )
 
 # ======================
@@ -72,16 +69,16 @@ def admin():
 @app.route("/confirmar/<int:i>/<status>")
 def confirmar(i, status):
     if session.get("admin"):
-        provas[i]["presenca"] = status
+        agendamentos[i]["status"] = status
     return redirect("/admin")
 
 # ======================
-# SAIR ADMIN
+# LOGOUTS
 # ======================
-@app.route("/admin/sair")
-def sair_admin():
-    session.pop("admin", None)
-    return redirect("/admin")
+@app.route("/sair")
+def sair():
+    session.clear()
+    return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)
