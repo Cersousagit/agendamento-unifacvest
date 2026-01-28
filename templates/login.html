@@ -1,23 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Login Admin</title>
+<title>Login Aluno</title>
 <style>
 body {
     background: #c62828;
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
     font-family: Arial;
 }
 .box {
     background: #fff;
     padding: 30px;
     border-radius: 10px;
-    width: 300px;
-    text-align: center;
 }
 input, button {
     width: 100%;
@@ -28,22 +26,17 @@ button {
     background: #c62828;
     color: #fff;
     border: none;
-    cursor: pointer;
 }
 </style>
 </head>
 <body>
 
 <div class="box">
-    <h2>Administração</h2>
-    <form method="post">
-        <input name="usuario" placeholder="Usuário" required>
-        <input type="password" name="senha" placeholder="Senha" required>
-        <button>Entrar</button>
-    </form>
-    {% if erro %}
-        <p style="color:red;">{{ erro }}</p>
-    {% endif %}
+<h2>Acesso do Aluno</h2>
+<form method="post">
+<input name="nome" placeholder="Nome completo" required>
+<button>Entrar</button>
+</form>
 </div>
 
 </body>
