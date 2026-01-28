@@ -1,24 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <title>Agendamento</title>
+<style>
+body{margin:0;font-family:Arial;background:#f2f2f2;}
+.topo{background:#b71c1c;color:white;padding:15px;display:flex;justify-content:space-between;}
+.container{max-width:700px;margin:40px auto;background:white;padding:30px;border-radius:8px;}
+.disciplina{background:#e0e0e0;padding:8px;margin-top:5px;display:flex;justify-content:space-between;}
+.btn-add,.btn-remover,button{background:#b71c1c;color:white;border:none;padding:8px;margin-top:10px;}
+.btn-remover{border-radius:50%;}
+</style>
 </head>
 <body>
 
+<div class="topo">
+<h3>Área do Aluno</h3>
+<a href="/logout" style="color:white">Sair</a>
+</div>
+
+<div class="container">
 <h2>Agendamento de Provas</h2>
 
-<form method="post">
-<input name="nome" placeholder="Nome completo" required><br><br>
-<input name="disciplina" placeholder="Disciplina" required><br><br>
-<input type="date" name="data" required><br><br>
-<input type="time" name="hora" required><br><br>
+<p><strong>Instruções:</strong> Digite a disciplina, clique em ➕ e use ❌ para remover.</p>
 
-<button>Confirmar Agendamento</button>
+<form method="POST">
+<input name="nome" placeholder="Nome completo" required>
+
+<input id="disciplinaInput" placeholder="Disciplina">
+<button type="button" class="btn-add" onclick="add()">➕</button>
+
+<div id="lista"></div>
+
+<input type="hidden" name="disciplinas" id="disciplinas">
+
+<input type="date" name="data" required>
+<input type="time" name="hora" required>
+
+<button onclick="enviar()">Confirmar Agendamento</button>
 </form>
+</div>
 
-<br>
-<a href="/sair">Sair</a>
-
+<script>
+let d=[];
+function add(){
+ let i=document.getElementById("disciplinaInput");
+ if(i.value){d.push(i.value);i.value="";render();}
+}
+function rem(i){d.splice(i,1);render();}
+function render(){
+ let l=document.getElementById("lista");
+ l.innerHTML="";
+ d.forEach((x,i)=>{
+   l.innerHTML+=`<div class="disciplina">${x}
+   <button type="button" class="btn-remover" onclick="rem(${i})">❌</button></div>`;
+ });
+}
+function enviar(){
+ document.getElementById("disciplinas").value=d.join(", ");
+}
+</script>
 </body>
 </html>
