@@ -2,51 +2,48 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Acesso - UNIFACVEST</title>
+<title>Login Admin</title>
 <style>
 body {
-    margin: 0;
-    height: 100vh;
     background: #c62828;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Arial, sans-serif;
+    font-family: Arial;
 }
 .box {
     background: #fff;
-    padding: 30px 40px;
+    padding: 30px;
     border-radius: 10px;
+    width: 300px;
     text-align: center;
-    width: 320px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
-.logo {
-    width: 120px;
-    margin-bottom: 15px;
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
 }
 button {
-    padding: 10px 25px;
-    border: none;
     background: #c62828;
     color: #fff;
-    font-size: 15px;
-    border-radius: 5px;
+    border: none;
     cursor: pointer;
-}
-button:hover {
-    background: #a61d1d;
 }
 </style>
 </head>
 <body>
 
 <div class="box">
-    <img src="/static/unifacvest.png" class="logo">
-    <h2>UNIFACVEST</h2>
+    <h2>Administração</h2>
     <form method="post">
-        <button type="submit">Entrar</button>
+        <input name="usuario" placeholder="Usuário" required>
+        <input type="password" name="senha" placeholder="Senha" required>
+        <button>Entrar</button>
     </form>
+    {% if erro %}
+        <p style="color:red;">{{ erro }}</p>
+    {% endif %}
 </div>
 
 </body>
