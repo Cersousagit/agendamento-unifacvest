@@ -34,9 +34,14 @@ button {
 <div class="box">
 <h2>Acesso do Aluno</h2>
 <form method="post">
-<input name="nome" placeholder="Nome completo" required>
+<input name="usuario" placeholder="Usuário">
+<input type="password" name="senha" placeholder="Senha">
 <button>Entrar</button>
 </form>
+
+{% if erro %}
+<p style="color:red">{{ erro }}</p>
+{% endif %}
 </div>
 
 </body>
