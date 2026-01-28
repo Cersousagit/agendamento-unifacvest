@@ -1,62 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Agendamento</title>
+<title>Agendamento de Provas</title>
 <style>
-body{background:#c62828;font-family:Arial}
-.box{background:#fff;width:400px;margin:40px auto;padding:20px;border-radius:8px}
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #c62828;
+    font-family: Arial, sans-serif;
+}
+.container {
+    width: 420px;
+    background: #fff;
+    margin: 40px auto;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+h2 {
+    text-align: center;
+}
+p {
+    font-size: 14px;
+    background: #f5f5f5;
+    padding: 10px;
+    border-left: 4px solid #c62828;
+}
+input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
+}
+button {
+    padding: 8px 12px;
+    background: #c62828;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button:hover {
+    background: #a61d1d;
+}
+ul {
+    padding-left: 20px;
+}
+li button {
+    background: none;
+    color: red;
+    font-size: 14px;
+}
+.sair {
+    display: block;
+    margin-top: 15px;
+    text-align: center;
+}
 </style>
 </head>
 <body>
 
-<div class="box">
-<h2>Agendamento de Provas</h2>
+<div class="container">
+    <h2>Agendamento de Provas</h2>
 
-<p>Digite a disciplina, clique em ➕ para adicionar. Use ❌ para remover.</p>
+    <p>
+        Instruções:<br>
+        • Digite o nome da disciplina<br>
+        • Clique em ➕ para adicionar<br>
+        • Use ❌ para remover se errar<br>
+        • Não há limite de disciplinas
+    </p>
 
-<form method="post">
-<input name="nome" placeholder="Nome completo" required><br><br>
+    <form method="post">
+        <label>Nome completo</label>
+        <input name="nome" required>
 
-<input id="disc" placeholder="Disciplina">
-<button type="button" onclick="add()">➕</button>
+        <label>Disciplina</label>
+        <input id="disciplina">
+        <button type="button" onclick="add()">➕ Adicionar</button>
 
-<ul id="lista"></ul>
-<input type="hidden" name="disciplinas[]" id="disciplinas">
+        <ul id="lista"></ul>
+        <input type="hidden" name="disciplinas[]" id="disciplinas">
 
-<br>
-<input type="date" name="data" required><br><br>
-<input type="time" name="hora" required><br><br>
+        <label>Data</label>
+        <input type="date" name="data" required>
 
-<button>Confirmar Agendamento</button>
-</form>
+        <label>Hora</label>
+        <input type="time" name="hora" required>
 
-{% if msg %}
-<p style="color:green">{{msg}}</p>
-{% endif %}
+        <br><br>
+        <button type="submit">Confirmar Agendamento</button>
+    </form>
 
-<a href="/">Sair</a>
+    {% if msg %}
+        <p style="color:green; text-align:center;"><b>{{ msg }}</b></p>
+    {% endif %}
+
+    <a href="/" class="sair">Sair</a>
 </div>
 
 <script>
-let d = [];
-function add(){
-  let v = document.getElementById("disc").value;
-  if(!v) return;
-  d.push(v);
-  render();
+let disciplinas = [];
+
+function add() {
+    let campo = document.getElementById("disciplina");
+    if (!campo.value) return;
+
+    disciplinas.push(campo.value);
+    campo.value = "";
+    render();
 }
-function rem(i){
-  d.splice(i,1);
-  render();
+
+function remover(i) {
+    disciplinas.splice(i, 1);
+    render();
 }
-function render(){
-  let ul=document.getElementById("lista");
-  ul.innerHTML="";
-  d.forEach((x,i)=>{
-    ul.innerHTML+=`<li>${x} <button onclick="rem(${i})">❌</button></li>`;
-  });
-  document.getElementById("disciplinas").value=d;
+
+function render() {
+    let ul = document.getElementById("lista");
+    ul.innerHTML = "";
+    disciplinas.forEach((d, i) => {
+        ul.innerHTML += `<li>${d} <button type="button" onclick="remover(${i})">❌</button></li>`;
+    });
+    document.getElementById("disciplinas").value = disciplinas;
 }
 </script>
 
