@@ -1,40 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
 <title>Admin</title>
+<style>
+body{font-family:Arial;background:#f4f6f8;}
+header{background:#b71c1c;color:white;padding:15px;display:flex;justify-content:space-between;}
+.container{max-width:900px;margin:30px auto;background:white;padding:20px;}
+.card{border:1px solid #ddd;padding:15px;margin-bottom:10px;}
+.presente{color:green;font-weight:bold;}
+</style>
 </head>
 <body>
 
-{% if login %}
-<h2>Login Admin</h2>
-<form method="post">
-<input name="usuario" placeholder="Usuário"><br><br>
-<input type="password" name="senha" placeholder="Senha"><br><br>
-<button>Entrar</button>
-</form>
+<header>
+<img src="{{ url_for('static', filename='unifacvest.png') }}" height="40">
+<a href="/logout" style="color:white">Sair</a>
+</header>
 
-{% if erro %}
-<p style="color:red">{{ erro }}</p>
-{% endif %}
-
-{% else %}
-<h2>Agendamentos</h2>
+<div class="container">
+<h2>Provas Agendadas</h2>
 
 {% for a in agendamentos %}
-<div style="border:1px solid #ccc; padding:10px; margin:10px">
+<div class="card">
 <b>{{ a.nome }}</b><br>
-{{ a.disciplina }}<br>
-{{ a.data }} - {{ a.hora }}<br>
-Status: {{ a.status }}<br>
-
-<a href="/confirmar/{{ loop.index0 }}/Presente">✔ Presente</a>
-<a href="/confirmar/{{ loop.index0 }}/Falta">❌ Falta</a>
+{{ a.disciplinas }}<br>
+{{ a.data }} | {{ a.hora }}<br>
+{% if not a.presente %}
+<a href="/presenca/{{ a.id }}">Marcar Presença</a>
+{% else %}
+<span class="presente">✔ Presente</span>
+{% endif %}
 </div>
 {% endfor %}
-
-<a href="/sair">Sair</a>
-{% endif %}
+</div>
 
 </body>
 </html>
