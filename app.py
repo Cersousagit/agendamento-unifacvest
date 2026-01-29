@@ -1,13 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, session
 
 app = Flask(__name__)
-app.secret_key = "unifacvest123"
+app.secret_key = "chave123"
 
-# Dados em memória
+# memória simples (funciona enquanto o app estiver rodando)
 agendamentos = []
 
-# Usuários fixos
-usuarios = {
+USUARIOS = {
     "aluno": "aluno123",
     "admin": "admin123"
 }
@@ -15,35 +14,30 @@ usuarios = {
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        usuario = request.form.get("usuario")
-        senha = request.form.get("senha")
+        u = request.form["usuario"]
+        s = request.form["senha"]
 
-        if usuario in usuarios and usuarios[usuario] == senha:
-            session["usuario"] = usuario
+        if u in USUARIOS and USUARIOS[u] == s:
+            session["usuario"] = u
+            return redirect("/agendar" if u == "aluno" else "/admin")
 
-            if usuario == "aluno":
-                return redirect("/agendar")
-            else:
-                return redirect("/admin")
-
-        return render_template("login.html", erro="Usuário ou senha inválidos")
+        return render_template("login.html", erro=True)
 
     return render_template("login.html")
 
 
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
-    if "usuario" not in session or session["usuario"] != "aluno":
+    if session.get("usuario") != "aluno":
         return redirect("/")
 
     if request.method == "POST":
         agendamentos.append({
             "nome": request.form["nome"],
-            "curso": request.form["curso"],
+            "disciplina": request.form["disciplina"],
             "data": request.form["data"],
-            "horario": request.form["horario"]
+            "hora": request.form["hora"]
         })
-
         return render_template("agendar.html", sucesso=True)
 
     return render_template("agendar.html")
@@ -51,14 +45,13 @@ def agendar():
 
 @app.route("/admin")
 def admin():
-    if "usuario" not in session or session["usuario"] != "admin":
+    if session.get("usuario") != "admin":
         return redirect("/")
-
     return render_template("admin.html", agendamentos=agendamentos)
 
 
-@app.route("/logout")
-def logout():
+@app.route("/sair")
+def sair():
     session.clear()
     return redirect("/")
 
