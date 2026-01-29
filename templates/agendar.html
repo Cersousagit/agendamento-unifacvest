@@ -1,124 +1,102 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Agendamento de Provas</title>
+    <meta charset="UTF-8">
+    <title>Agendamento de Provas</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f2f2f2;
+        }
 
-<style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
-}
+        header {
+            background: #b71c1c;
+            padding: 15px;
+            text-align: center;
+        }
 
-header {
-    background: #b71c1c;
-    padding: 15px;
-    text-align: center;
-}
+        header img {
+            height: 60px;
+        }
 
-header img {
-    height: 60px;
-}
+        .container {
+            max-width: 420px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+        }
 
-.container {
-    max-width: 500px;
-    margin: 40px auto;
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    text-align: center;
-}
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
 
-h2 {
-    margin-top: 10px;
-}
+        .info {
+            font-size: 14px;
+            background: #f9f9f9;
+            border-left: 4px solid #b71c1c;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
 
-.instrucao {
-    background: #f9f9f9;
-    padding: 12px;
-    border-left: 5px solid #b71c1c;
-    margin-bottom: 15px;
-    text-align: left;
-}
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
 
-.msg-sucesso {
-    background: #e8f5e9;
-    color: #2e7d32;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    font-weight: bold;
-}
+        button {
+            background: #b71c1c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
 
-input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-}
+        button:hover {
+            opacity: 0.9;
+        }
 
-.btn-add {
-    background: #b71c1c;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-    width: 100%;
-}
+        .disciplina {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
 
-.disciplinas {
-    margin-top: 10px;
-    text-align: left;
-}
+        .disciplina span {
+            flex: 1;
+            background: #e0e0e0;
+            padding: 8px;
+            border-radius: 4px;
+        }
 
-.disciplina {
-    background: #e0e0e0;
-    padding: 8px 10px;
-    border-radius: 5px;
-    margin-top: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        .disciplina button {
+            width: 35px;
+            margin-left: 5px;
+            background: #d32f2f;
+        }
 
-.btn-remover {
-    background: #b71c1c;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    cursor: pointer;
-    font-weight: bold;
-}
+        .success {
+            background: #dff0d8;
+            color: #2e7d32;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
 
-button[type="submit"] {
-    background: #b71c1c;
-    color: white;
-    border: none;
-    padding: 12px;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 15px;
-}
-
-.btn-sair {
-    margin: 30px auto 0;
-    display: block;
-    background: red;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 5px;
-}
-</style>
+        .logout {
+            background: red;
+            margin-top: 15px;
+        }
+    </style>
 </head>
-
 <body>
 
 <header>
@@ -126,80 +104,78 @@ button[type="submit"] {
 </header>
 
 <div class="container">
-
     <h2>Agendamento de Provas</h2>
 
-    {% if msg %}
-    <div class="msg-sucesso">
-        {{ msg }}
+    <div class="success" id="msgSucesso">
+        ✅ Agendamento realizado com sucesso
     </div>
-    {% endif %}
 
-    <div class="instrucao">
+    <div class="info">
         <strong>Instruções:</strong><br>
-        Digite a disciplina, clique em ➕ para adicionar e use ❌ para remover.
+        Digite a disciplina, clique em <b>Adicionar</b> e use ❌ para remover.
     </div>
 
-    <form method="POST" action="/agendar" onsubmit="prepararEnvio()">
+    <form method="POST" action="/agendar" onsubmit="mostrarMensagem()">
 
-        <input type="text" name="nome" placeholder="Nome completo" required>
+        <input type="text" name="aluno" placeholder="Nome do aluno" required>
 
         <input type="text" id="disciplinaInput" placeholder="Disciplina">
 
-        <button type="button" class="btn-add" onclick="adicionarDisciplina()">➕ Adicionar Disciplina</button>
+        <button type="button" onclick="adicionarDisciplina()">+ Adicionar Disciplina</button>
 
-        <div class="disciplinas" id="listaDisciplinas"></div>
+        <div id="listaDisciplinas"></div>
 
         <input type="hidden" name="disciplinas" id="disciplinasHidden">
 
         <input type="date" name="data" required>
+
         <input type="time" name="hora" required>
 
         <button type="submit">Confirmar Agendamento</button>
     </form>
 
-    <form action="/logout" method="get">
-        <button class="btn-sair">Sair</button>
-    </form>
-
+    <a href="/logout">
+        <button class="logout">Sair</button>
+    </a>
 </div>
 
 <script>
-let disciplinas = [];
+    let disciplinas = [];
 
-function adicionarDisciplina() {
-    const input = document.getElementById("disciplinaInput");
-    const nome = input.value.trim();
-    if (nome === "") return;
+    function adicionarDisciplina() {
+        const input = document.getElementById("disciplinaInput");
+        if (input.value.trim() === "") return;
 
-    disciplinas.push(nome);
-    input.value = "";
-    atualizarLista();
-}
+        disciplinas.push(input.value);
+        input.value = "";
+        atualizarLista();
+    }
 
-function removerDisciplina(index) {
-    disciplinas.splice(index, 1);
-    atualizarLista();
-}
+    function removerDisciplina(index) {
+        disciplinas.splice(index, 1);
+        atualizarLista();
+    }
 
-function atualizarLista() {
-    const lista = document.getElementById("listaDisciplinas");
-    lista.innerHTML = "";
+    function atualizarLista() {
+        const lista = document.getElementById("listaDisciplinas");
+        const hidden = document.getElementById("disciplinasHidden");
+        lista.innerHTML = "";
 
-    disciplinas.forEach((disc, index) => {
-        const div = document.createElement("div");
-        div.className = "disciplina";
-        div.innerHTML = `
-            <span>${disc}</span>
-            <button type="button" class="btn-remover" onclick="removerDisciplina(${index})">✖</button>
-        `;
-        lista.appendChild(div);
-    });
-}
+        disciplinas.forEach((d, i) => {
+            lista.innerHTML += `
+                <div class="disciplina">
+                    <span>${d}</span>
+                    <button type="button" onclick="removerDisciplina(${i})">❌</button>
+                </div>
+            `;
+        });
 
-function prepararEnvio() {
-    document.getElementById("disciplinasHidden").value = disciplinas.join(", ");
-}
+        hidden.value = disciplinas.join(", ");
+    }
+
+    function mostrarMensagem() {
+        document.getElementById("msgSucesso").style.display = "block";
+    }
 </script>
 
 </body>
