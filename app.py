@@ -1,57 +1,72 @@
-from flask import Flask, render_template, request, redirect
-import itertools
+from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
-agendamentos=[]
-ids=itertools.count(1)
+app.secret_key = "segredo123"
 
-@app.route("/")
+# Banco de dados simples em memória
+agendamentos = []
+
+# Usuários fixos
+USUARIOS = {
+    "aluno": "aluno123",
+    "admin": "admin123"
+}
+
+@app.route("/", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        usuario = request.form["usuario"]
+        senha = request.form["senha"]
+
+        if usuario in USUARIOS and USUARIOS[usuario] == senha:
+            session["usuario"] = usuario
+
+            if usuario == "aluno":
+                return redirect(url_for("agendar"))
+            else:
+                return redirect(url_for("admin"))
+
+        return render_template("login.html", erro="Usuário ou senha inválidos")
+
     return render_template("login.html")
 
-@app.route("/login", methods=["POST"])
-def auth():
-    u=request.form["usuario"]
-    s=request.form["senha"]
-    if u=="admin" and s=="admin123":
-        return redirect("/admin")
-    if u=="aluno" and s=="aluno123":
-        return redirect("/agendar")
-    return redirect("/")
 
-@app.route('/agendar', methods=['GET', 'POST'])
+@app.route("/agendar", methods=["GET", "POST"])
 def agendar():
-    if request.method == 'POST':
-        aluno = request.form.get('aluno')
-        disciplinas = request.form.get('disciplinas')
-        data = request.form.get('data')
-        hora = request.form.get('hora')
+    if "usuario" not in session or session["usuario"] != "aluno":
+        return redirect(url_for("login"))
 
-        # DEBUG (importantíssimo)
-        print(aluno, disciplinas, data, hora)
+    if request.method == "POST":
+        nome = request.form["nome"]
+        curso = request.form["curso"]
+        data = request.form["data"]
+        horario = request.form["horario"]
 
-        return redirect('/agendar')
+        agendamentos.append({
+            "nome": nome,
+            "curso": curso,
+            "data": data,
+            "horario": horario
+        })
 
-    return render_template('agendar.html')
+        return render_template("agendar.html", sucesso=True)
 
-
-    return render_template("agendar.html", msg=msg)
+    return render_template("agendar.html")
 
 
 @app.route("/admin")
 def admin():
+    if "usuario" not in session or session["usuario"] != "admin":
+        return redirect(url_for("login"))
+
     return render_template("admin.html", agendamentos=agendamentos)
 
-@app.route("/presenca/<int:id>")
-def presenca(id):
-    for a in agendamentos:
-        if a["id"]==id:
-            a["presente"]=True
-    return redirect("/admin")
 
 @app.route("/logout")
 def logout():
-    return redirect("/")
+    session.clear()
+    return redirect(url_for("login"))
 
-if __name__=="__main__":
-    app.run()
+
+if __name__ == "__main__":
+    app.run(debug=True)
