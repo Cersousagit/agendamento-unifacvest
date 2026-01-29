@@ -11,14 +11,19 @@ body {
     background: #f2f2f2;
 }
 
-.topo {
+header {
     background: #b71c1c;
-    height: 70px;
+    padding: 15px;
+    text-align: center;
+}
+
+header img {
+    height: 60px;
 }
 
 .container {
-    max-width: 700px;
-    margin: -40px auto 40px;
+    max-width: 500px;
+    margin: 40px auto;
     background: white;
     padding: 30px;
     border-radius: 8px;
@@ -26,20 +31,45 @@ body {
     text-align: center;
 }
 
-.logo {
-    width: 200px;
-    margin-bottom: 10px;
-}
-
 h2 {
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 .instrucao {
     background: #f9f9f9;
-    padding: 15px;
+    padding: 12px;
     border-left: 5px solid #b71c1c;
-    margin: 20px 0;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.msg-sucesso {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.btn-add {
+    background: #b71c1c;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.disciplinas {
+    margin-top: 10px;
     text-align: left;
 }
 
@@ -53,108 +83,122 @@ h2 {
     align-items: center;
 }
 
-.btn-add, .btn-remover, button {
+.btn-remover {
     background: #b71c1c;
     color: white;
     border: none;
-    padding: 8px 12px;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
     cursor: pointer;
     font-weight: bold;
 }
 
-.btn-remover {
-    border-radius: 50%;
-}
-
-input {
+button[type="submit"] {
+    background: #b71c1c;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    cursor: pointer;
     width: 100%;
-    padding: 10px;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 .btn-sair {
-    margin-top: 25px;
-    background: #c62828;
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
+    margin: 30px auto 0;
+    display: block;
+    background: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="topo"></div>
+<header>
+    <img src="{{ url_for('static', filename='unifacvest.png') }}">
+</header>
 
 <div class="container">
 
-    <!-- LOGO -->
-    <img src="{{ url_for('static', filename='unifacvest.png') }}" class="logo">
-
-    <!-- TÍTULO -->
     <h2>Agendamento de Provas</h2>
+
+    {% if msg %}
+    <div class="msg-sucesso">
+        {{ msg }}
+    </div>
+    {% endif %}
 
     <div class="instrucao">
         <strong>Instruções:</strong><br>
-        Digite a disciplina, clique em ➕ para adicionar.
-        Caso erre, utilize o ❌ para remover.
+        Digite a disciplina, clique em ➕ para adicionar e use ❌ para remover.
     </div>
 
-    <form method="POST">
+    <form method="POST" action="/agendar" onsubmit="prepararEnvio()">
 
-        <input name="nome" placeholder="Nome completo" required>
+        <input type="text" name="nome" placeholder="Nome completo" required>
 
-        <input id="disciplinaInput" placeholder="Disciplina">
-        <button type="button" class="btn-add" onclick="add()">➕</button>
+        <input type="text" id="disciplinaInput" placeholder="Disciplina">
 
-        <div id="lista"></div>
+        <button type="button" class="btn-add" onclick="adicionarDisciplina()">➕ Adicionar Disciplina</button>
 
-        <input type="hidden" name="disciplinas" id="disciplinas">
+        <div class="disciplinas" id="listaDisciplinas"></div>
+
+        <input type="hidden" name="disciplinas" id="disciplinasHidden">
 
         <input type="date" name="data" required>
         <input type="time" name="hora" required>
 
-        <button onclick="enviar()">Confirmar Agendamento</button>
+        <button type="submit">Confirmar Agendamento</button>
     </form>
 
-    <!-- BOTÃO SAIR EMBAIXO -->
-    <form action="/logout">
-        <button class="btn-sair">SAIR</button>
+    <form action="/logout" method="get">
+        <button class="btn-sair">Sair</button>
     </form>
 
 </div>
 
 <script>
-let d=[];
+let disciplinas = [];
 
-function add(){
-    let i=document.getElementById("disciplinaInput");
-    if(i.value){
-        d.push(i.value);
-        i.value="";
-        render();
-    }
+function adicionarDisciplina() {
+    const input = document.getElementById("disciplinaInput");
+    const nome = input.value.trim();
+    if (nome === "") return;
+
+    disciplinas.push(nome);
+    input.value = "";
+    atualizarLista();
 }
 
-function rem(i){
-    d.splice(i,1);
-    render();
+function removerDisciplina(index) {
+    disciplinas.splice(index, 1);
+    atualizarLista();
 }
 
-function render(){
-    let l=document.getElementById("lista");
-    l.innerHTML="";
-    d.forEach((x,i)=>{
-        l.innerHTML+=`
-        <div class="disciplina">
-            ${x}
-            <button type="button" class="btn-remover" onclick="rem(${i})">❌</button>
-        </div>`;
+function atualizarLista() {
+    const lista = document.getElementById("listaDisciplinas");
+    lista.innerHTML = "";
+
+    disciplinas.forEach((disc, index) => {
+        const div = document.createElement("div");
+        div.className = "disciplina";
+        div.innerHTML = `
+            <span>${disc}</span>
+            <button type="button" class="btn-remover" onclick="removerDisciplina(${index})">✖</button>
+        `;
+        lista.appendChild(div);
     });
 }
 
-function enviar(){
-    document.getElementById("disciplinas").value=d.join(", ");
+function prepararEnvio() {
+    document.getElementById("disciplinasHidden").value = disciplinas.join(", ");
 }
 </script>
 
