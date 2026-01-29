@@ -1,182 +1,35 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Agendamento de Provas</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f2f2f2;
-        }
-
-        header {
-            background: #b71c1c;
-            padding: 15px;
-            text-align: center;
-        }
-
-        header img {
-            height: 60px;
-        }
-
-        .container {
-            max-width: 420px;
-            margin: 40px auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.15);
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .info {
-            font-size: 14px;
-            background: #f9f9f9;
-            border-left: 4px solid #b71c1c;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        button {
-            background: #b71c1c;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .disciplina {
-            display: flex;
-            align-items: center;
-            margin-top: 5px;
-        }
-
-        .disciplina span {
-            flex: 1;
-            background: #e0e0e0;
-            padding: 8px;
-            border-radius: 4px;
-        }
-
-        .disciplina button {
-            width: 35px;
-            margin-left: 5px;
-            background: #d32f2f;
-        }
-
-        .success {
-            background: #dff0d8;
-            color: #2e7d32;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            text-align: center;
-            display: none;
-        }
-
-        .logout {
-            background: red;
-            margin-top: 15px;
-        }
-    </style>
+<meta charset="utf-8">
+<title>Agendamento</title>
 </head>
 <body>
 
-<header>
-    <img src="{{ url_for('static', filename='unifacvest.png') }}">
-</header>
+<h3>Agendamento de Provas</h3>
 
-<div class="container">
-    <h2>Agendamento de Provas</h2>
+{% if sucesso %}
+<p style="color:green">Agendamento realizado com sucesso</p>
+{% endif %}
 
-    <div class="success" id="msgSucesso">
-        ✅ Agendamento realizado com sucesso
-    </div>
+<form method="post">
+Nome do aluno:<br>
+<input name="nome" required><br><br>
 
-    <div class="info">
-        <strong>Instruções:</strong><br>
-        Digite a disciplina, clique em <b>Adicionar</b> e use ❌ para remover.
-    </div>
+Disciplina:<br>
+<input name="disciplina" required><br><br>
 
-    <form method="POST" action="/agendar" onsubmit="mostrarMensagem()">
+Data:<br>
+<input type="date" name="data" required><br><br>
 
-        <input type="text" name="aluno" placeholder="Nome do aluno" required>
+Horário:<br>
+<input type="time" name="hora" required><br><br>
 
-        <input type="text" id="disciplinaInput" placeholder="Disciplina">
+<button>Confirmar Agendamento</button>
+</form>
 
-        <button type="button" onclick="adicionarDisciplina()">+ Adicionar Disciplina</button>
-
-        <div id="listaDisciplinas"></div>
-
-        <input type="hidden" name="disciplinas" id="disciplinasHidden">
-
-        <input type="date" name="data" required>
-
-        <input type="time" name="hora" required>
-
-        <button type="submit">Confirmar Agendamento</button>
-    </form>
-
-    <a href="/logout">
-        <button class="logout">Sair</button>
-    </a>
-</div>
-
-<script>
-    let disciplinas = [];
-
-    function adicionarDisciplina() {
-        const input = document.getElementById("disciplinaInput");
-        if (input.value.trim() === "") return;
-
-        disciplinas.push(input.value);
-        input.value = "";
-        atualizarLista();
-    }
-
-    function removerDisciplina(index) {
-        disciplinas.splice(index, 1);
-        atualizarLista();
-    }
-
-    function atualizarLista() {
-        const lista = document.getElementById("listaDisciplinas");
-        const hidden = document.getElementById("disciplinasHidden");
-        lista.innerHTML = "";
-
-        disciplinas.forEach((d, i) => {
-            lista.innerHTML += `
-                <div class="disciplina">
-                    <span>${d}</span>
-                    <button type="button" onclick="removerDisciplina(${i})">❌</button>
-                </div>
-            `;
-        });
-
-        hidden.value = disciplinas.join(", ");
-    }
-
-    function mostrarMensagem() {
-        document.getElementById("msgSucesso").style.display = "block";
-    }
-</script>
+<br>
+<a href="/sair">Sair</a>
 
 </body>
 </html>
