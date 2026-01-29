@@ -1,37 +1,40 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <title>Admin</title>
+<style>
+body {font-family: Arial; background:#f2f2f2;}
+.header {background:#b30000; padding:20px; text-align:center;}
+.card {background:#fff; width:700px; margin:30px auto; padding:25px; border-radius:8px;}
+</style>
 </head>
+
 <body>
 
-<h3>Provas Agendadas</h3>
+<div class="header">
+    <img src="/static/logo.png" height="50">
+</div>
+
+<div class="card">
+<h2>Provas Agendadas</h2>
 
 {% if agendamentos %}
-<table border="1">
-<tr>
-<th>Aluno</th>
-<th>Disciplina</th>
-<th>Data</th>
-<th>Hora</th>
-</tr>
-
+<ul>
 {% for a in agendamentos %}
-<tr>
-<td>{{ a.nome }}</td>
-<td>{{ a.disciplina }}</td>
-<td>{{ a.data }}</td>
-<td>{{ a.hora }}</td>
-</tr>
+<li>
+<strong>{{ a.nome }}</strong><br>
+Disciplinas: {{ a.disciplinas|join(", ") }}<br>
+Data: {{ a.data }} às {{ a.hora }}
+</li><hr>
 {% endfor %}
-</table>
+</ul>
 {% else %}
 <p>Nenhuma prova agendada.</p>
 {% endif %}
 
-<br>
-<a href="/sair">Sair</a>
+<a href="/logout">Sair</a>
+</div>
 
 </body>
 </html>
