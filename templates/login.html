@@ -1,24 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Login</title>
+<meta charset="utf-8">
+<title>Login</title>
+<style>
+body { font-family: Arial; background:#f2f2f2; }
+.box { width:300px; margin:100px auto; background:#fff; padding:20px; }
+</style>
 </head>
 <body>
-    <h2>Login do Sistema</h2>
 
-    {% if erro %}
-        <p style="color:red">{{ erro }}</p>
-    {% endif %}
+<div class="box">
+<h3>Login do Sistema</h3>
 
-    <form method="post">
-        <label>Usuário:</label><br>
-        <input type="text" name="usuario" required><br><br>
+{% if erro %}
+<p style="color:red">Usuário ou senha inválidos</p>
+{% endif %}
 
-        <label>Senha:</label><br>
-        <input type="password" name="senha" required><br><br>
+<form method="post">
+Usuário:<br>
+<input name="usuario"><br><br>
+Senha:<br>
+<input type="password" name="senha"><br><br>
+<button>Entrar</button>
+</form>
+</div>
 
-        <button type="submit">Entrar</button>
-    </form>
 </body>
 </html>
