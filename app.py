@@ -1,7 +1,22 @@
 from flask import Flask, render_template, request, redirect, session
+import json
+import os
 
 app = Flask(__name__)
 app.secret_key = "segredo"
+
+ARQ = "agendamentos.json"
+
+def ler_agendamentos():
+    if not os.path.exists(ARQ):
+        return []
+    with open(ARQ, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def salvar_agendamentos(lista):
+    with open(ARQ, "w", encoding="utf-8") as f:
+        json.dump(lista, f, ensure_ascii=False, indent=2)
+
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -27,17 +42,18 @@ def agendar():
     if session.get("perfil") != "aluno":
         return redirect("/")
 
-    if "agendamentos" not in session:
-        session["agendamentos"] = []
-
     if request.method == "POST":
-        session["agendamentos"].append({
+        ag = ler_agendamentos()
+
+        ag.append({
             "nome": request.form["nome"],
             "disciplinas": request.form.getlist("disciplinas[]"),
             "data": request.form["data"],
-            "hora": request.form["hora"]
+            "hora": request.form["hora"],
+            "status": "pendente"
         })
-        session.modified = True
+
+        salvar_agendamentos(ag)
         return render_template("agendar.html", sucesso=True)
 
     return render_template("agendar.html")
@@ -48,28 +64,29 @@ def admin():
     if session.get("perfil") != "admin":
         return redirect("/")
 
-    ag = session.get("agendamentos", [])
-    confirmadas = session.get("confirmadas", 0)
+    ag = ler_agendamentos()
+    pendentes = [a for a in ag if a["status"] == "pendente"]
+    confirmadas = [a for a in ag if a["status"] == "confirmada"]
 
-    ag = sorted(ag, key=lambda x: (x["data"], x["hora"]))
+    pendentes.sort(key=lambda x: (x["data"], x["hora"]))
 
     return render_template(
         "admin.html",
-        agendamentos=ag,
-        total=len(ag),
-        confirmadas=confirmadas
+        pendentes=pendentes,
+        total_p=len(pendentes),
+        total_c=len(confirmadas)
     )
 
 
-@app.route("/confirmar/<int:index>")
-def confirmar(index):
+@app.route("/confirmar/<int:i>")
+def confirmar(i):
     if session.get("perfil") != "admin":
         return redirect("/")
 
-    if "agendamentos" in session and index < len(session["agendamentos"]):
-        session["agendamentos"].pop(index)
-        session["confirmadas"] = session.get("confirmadas", 0) + 1
-        session.modified = True
+    ag = ler_agendamentos()
+    if i < len(ag):
+        ag[i]["status"] = "confirmada"
+        salvar_agendamentos(ag)
 
     return redirect("/admin")
 
