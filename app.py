@@ -19,18 +19,23 @@ def auth():
         return redirect("/agendar")
     return redirect("/")
 
-@app.route("/agendar", methods=["GET","POST"])
+@app.route("/agendar", methods=["GET", "POST"])
 def agendar():
-    if request.method=="POST":
+    msg = None
+
+    if request.method == "POST":
         agendamentos.append({
-            "id":next(ids),
-            "nome":request.form["nome"],
-            "disciplinas":request.form["disciplinas"],
-            "data":request.form["data"],
-            "hora":request.form["hora"],
-            "presente":False
+            "id": next(contador_id),
+            "nome": request.form["nome"],
+            "disciplinas": request.form["disciplinas"],
+            "data": request.form["data"],
+            "hora": request.form["hora"],
+            "presente": False
         })
-    return render_template("agendar.html")
+        msg = "Agendamento realizado com sucesso!"
+
+    return render_template("agendar.html", msg=msg)
+
 
 @app.route("/admin")
 def admin():
