@@ -2,81 +2,36 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Provas Agendadas</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-        }
-        header {
-            background: #b71c1c;
-            color: white;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        header img {
-            height: 40px;
-        }
-        .container {
-            width: 80%;
-            margin: 30px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
-            text-align: center;
-        }
-        th {
-            background: #eee;
-        }
-        .logout {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-    </style>
+    <title>Admin</title>
 </head>
 <body>
 
-<header>
-    <img src="{{ url_for('static', filename='logo-unifacvest.png') }}" alt="Unifacvest">
-    <a href="/logout" class="logout">Sair</a>
-</header>
+<h2>Provas Agendadas</h2>
 
-<div class="container">
-    <h2>Provas Agendadas</h2>
+{% if agendamentos %}
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Aluno</th>
+        <th>Curso</th>
+        <th>Data</th>
+        <th>Horário</th>
+    </tr>
 
-    {% if agendamentos %}
-    <table>
-        <tr>
-            <th>Aluno</th>
-            <th>Curso</th>
-            <th>Data</th>
-            <th>Horário</th>
-        </tr>
+    {% for ag in agendamentos %}
+    <tr>
+        <td>{{ ag.nome }}</td>
+        <td>{{ ag.curso }}</td>
+        <td>{{ ag.data }}</td>
+        <td>{{ ag.horario }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>Nenhuma prova agendada.</p>
+{% endif %}
 
-        {% for ag in agendamentos %}
-        <tr>
-            <td>{{ ag.nome }}</td>
-            <td>{{ ag.curso }}</td>
-            <td>{{ ag.data }}</td>
-            <td>{{ ag.horario }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-        <p>Nenhuma prova agendada até o momento.</p>
-    {% endif %}
-</div>
+<br>
+<a href="/logout">Sair</a>
 
 </body>
 </html>
