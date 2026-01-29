@@ -7,12 +7,32 @@
 body { font-family:Arial; background:#f2f2f2; margin:0; }
 header { background:#b30000; padding:20px; text-align:center; }
 .box {
-    width:700px;
+    width:750px;
     margin:40px auto;
     background:#fff;
     padding:30px;
     border-radius:10px;
 }
+.dashboard {
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+.card {
+    background:#eee;
+    padding:15px;
+    border-radius:8px;
+    width:48%;
+    text-align:center;
+}
+.btn {
+    background:#b30000;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    cursor:pointer;
+}
+hr { margin:15px 0; }
 </style>
 </head>
 
@@ -24,19 +44,33 @@ header { background:#b30000; padding:20px; text-align:center; }
 <div class="box">
 <h2>Provas Agendadas</h2>
 
+<div class="dashboard">
+    <div class="card">
+        <b>Pendentes</b><br>{{ total }}
+    </div>
+    <div class="card">
+        <b>Confirmadas</b><br>{{ confirmadas }}
+    </div>
+</div>
+
 {% if agendamentos %}
 {% for a in agendamentos %}
 <p>
 <b>{{ a.nome }}</b><br>
 {{ a.disciplinas|join(", ") }}<br>
-{{ a.data }} às {{ a.hora }}
+{{ a.data }} às {{ a.hora }}<br><br>
+
+<a href="/confirmar/{{ loop.index0 }}">
+<button class="btn">Confirmar</button>
+</a>
 </p>
 <hr>
 {% endfor %}
 {% else %}
-<p>Nenhuma prova agendada.</p>
+<p>Nenhuma prova pendente.</p>
 {% endif %}
 
+<br>
 <a href="/logout">Sair</a>
 </div>
 </body>
