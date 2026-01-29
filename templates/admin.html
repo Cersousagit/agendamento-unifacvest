@@ -1,38 +1,81 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Admin</title>
-<style>
-body{font-family:Arial;background:#f4f6f8;}
-header{background:#b71c1c;color:white;padding:15px;display:flex;justify-content:space-between;}
-.container{max-width:900px;margin:30px auto;background:white;padding:20px;}
-.card{border:1px solid #ddd;padding:15px;margin-bottom:10px;}
-.presente{color:green;font-weight:bold;}
-</style>
+    <meta charset="UTF-8">
+    <title>Admin - Provas Agendadas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+        }
+        header {
+            background: #b71c1c;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header img {
+            height: 40px;
+        }
+        .container {
+            width: 80%;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background: #eee;
+        }
+        .logout {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
 <header>
-<img src="{{ url_for('static', filename='unifacvest.png') }}" height="40">
-<a href="/logout" style="color:white">Sair</a>
+    <img src="{{ url_for('static', filename='logo-unifacvest.png') }}" alt="Unifacvest">
+    <a href="/logout" class="logout">Sair</a>
 </header>
 
 <div class="container">
-<h2>Provas Agendadas</h2>
+    <h2>Provas Agendadas</h2>
 
-{% for a in agendamentos %}
-<div class="card">
-<b>{{ a.nome }}</b><br>
-{{ a.disciplinas }}<br>
-{{ a.data }} | {{ a.hora }}<br>
-{% if not a.presente %}
-<a href="/presenca/{{ a.id }}">Marcar Presença</a>
-{% else %}
-<span class="presente">✔ Presente</span>
-{% endif %}
-</div>
-{% endfor %}
+    {% if agendamentos %}
+    <table>
+        <tr>
+            <th>Aluno</th>
+            <th>Curso</th>
+            <th>Data</th>
+            <th>Horário</th>
+        </tr>
+
+        {% for ag in agendamentos %}
+        <tr>
+            <td>{{ ag.nome }}</td>
+            <td>{{ ag.curso }}</td>
+            <td>{{ ag.data }}</td>
+            <td>{{ ag.horario }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>Nenhuma prova agendada até o momento.</p>
+    {% endif %}
 </div>
 
 </body>
