@@ -1,97 +1,136 @@
-from flask import Flask, render_template, request, redirect, session
-import json
-import os
+from flask import Flask, render_template, request, redirect, url_for, session
+import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = "segredo"
+app.secret_key = "unifacvest_secreta"
 
-ARQ = "agendamentos.json"
-
-def ler_agendamentos():
-    if not os.path.exists(ARQ):
-        return []
-    with open(ARQ, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-def salvar_agendamentos(lista):
-    with open(ARQ, "w", encoding="utf-8") as f:
-        json.dump(lista, f, ensure_ascii=False, indent=2)
+DB_NAME = "database.db"
 
 
+# ---------------- BANCO ----------------
+def get_db():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = get_db()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS agendamentos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT,
+            disciplina TEXT,
+            data TEXT,
+            hora TEXT,
+            status TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+init_db()
+
+
+# ---------------- LOGIN ----------------
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        u = request.form["usuario"]
-        s = request.form["senha"]
+        user = request.form["usuario"]
+        senha = request.form["senha"]
 
-        if u == "aluno" and s == "aluno123":
+        if user == "aluno" and senha == "aluno123":
             session["perfil"] = "aluno"
-            return redirect("/agendar")
+            return redirect(url_for("agendar"))
 
-        if u == "admin" and s == "admin123":
+        if user == "admin" and senha == "admin123":
             session["perfil"] = "admin"
-            return redirect("/admin")
+            return redirect(url_for("admin"))
 
         return render_template("login.html", erro="Usuário ou senha inválidos")
 
     return render_template("login.html")
 
 
+# ---------------- AGENDAMENTO ----------------
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     if session.get("perfil") != "aluno":
-        return redirect("/")
+        return redirect(url_for("login"))
 
     if request.method == "POST":
-        ag = ler_agendamentos()
+        nome = request.form["nome"]
+        disciplinas = request.form.getlist("disciplinas[]")
+        data = request.form["data"]
+        hora = request.form["hora"]
 
-        ag.append({
-            "nome": request.form["nome"],
-            "disciplinas": request.form.getlist("disciplinas[]"),
-            "data": request.form["data"],
-            "hora": request.form["hora"],
-            "status": "pendente"
-        })
+        conn = get_db()
+        for d in disciplinas:
+            conn.execute(
+                "INSERT INTO agendamentos (nome, disciplina, data, hora, status) VALUES (?, ?, ?, ?, ?)",
+                (nome, d, data, hora, "pendente")
+            )
+        conn.commit()
+        conn.close()
 
-        salvar_agendamentos(ag)
         return render_template("agendar.html", sucesso=True)
 
     return render_template("agendar.html")
 
 
+# ---------------- ADMIN ----------------
 @app.route("/admin")
 def admin():
     if session.get("perfil") != "admin":
-        return redirect("/")
+        return redirect(url_for("login"))
 
-    ag = ler_agendamentos()
-    pendentes = [a for a in ag if a["status"] == "pendente"]
-    confirmadas = [a for a in ag if a["status"] == "confirmada"]
+    conn = get_db()
+    provas = conn.execute("""
+        SELECT * FROM agendamentos
+        WHERE status='pendente'
+        ORDER BY data, hora
+    """).fetchall()
 
-    pendentes.sort(key=lambda x: (x["data"], x["hora"]))
+    total_pendentes = len(provas)
+    total_confirmadas = conn.execute(
+        "SELECT COUNT(*) FROM agendamentos WHERE status='confirmado'"
+    ).fetchone()[0]
+
+    conn.close()
 
     return render_template(
         "admin.html",
-        pendentes=pendentes,
-        total_p=len(pendentes),
-        total_c=len(confirmadas)
+        provas=provas,
+        pendentes=total_pendentes,
+        confirmadas=total_confirmadas
     )
 
 
-@app.route("/confirmar/<int:i>")
-def confirmar(i):
+# ---------------- CONFIRMAR ----------------
+@app.route("/confirmar/<int:id>")
+def confirmar(id):
     if session.get("perfil") != "admin":
-        return redirect("/")
+        return redirect(url_for("login"))
 
-    ag = ler_agendamentos()
-    if i < len(ag):
-        ag[i]["status"] = "confirmada"
-        salvar_agendamentos(ag)
+    conn = get_db()
+    conn.execute(
+        "UPDATE agendamentos SET status='confirmado' WHERE id=?",
+        (id,)
+    )
+    conn.commit()
+    conn.close()
 
-    return redirect("/admin")
+    return redirect(url_for("admin"))
 
 
-@app.route("/logout")
-def logout():
+# ---------------- SAIR ----------------
+@app.route("/sair")
+def sair():
     session.clear()
-    return redirect("/")
+    return redirect(url_for("login"))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
