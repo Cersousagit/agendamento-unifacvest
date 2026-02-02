@@ -1,10 +1,24 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, session
+import json
+import os
 
 app = Flask(__name__)
 app.secret_key = "unifacvest123"
 
-# armazenamento simples (sem banco, mas funcional)
-agendamentos = []
+ARQUIVO = "agendamentos.json"
+
+
+# ---------- UTIL ----------
+def carregar_agendamentos():
+    if not os.path.exists(ARQUIVO):
+        return []
+    with open(ARQUIVO, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def salvar_agendamentos(lista):
+    with open(ARQUIVO, "w", encoding="utf-8") as f:
+        json.dump(lista, f, indent=4, ensure_ascii=False)
 
 
 # ---------- LOGIN ----------
@@ -30,7 +44,7 @@ def login():
 # ---------- AGENDAR ----------
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
-    if "usuario" not in session or session["usuario"] != "aluno":
+    if session.get("usuario") != "aluno":
         return redirect("/")
 
     if request.method == "POST":
@@ -39,8 +53,10 @@ def agendar():
         data = request.form.get("data")
         hora = request.form.get("hora")
 
-        if not nome or not disciplinas or not data or not hora:
+        if not all([nome, disciplinas, data, hora]):
             return "Erro: dados incompletos", 400
+
+        agendamentos = carregar_agendamentos()
 
         agendamentos.append({
             "nome": nome,
@@ -50,6 +66,8 @@ def agendar():
             "status": "confirmado"
         })
 
+        salvar_agendamentos(agendamentos)
+
         return render_template("agendar.html", sucesso=True)
 
     return render_template("agendar.html")
@@ -58,18 +76,20 @@ def agendar():
 # ---------- ADMIN ----------
 @app.route("/admin")
 def admin():
-    if "usuario" not in session or session["usuario"] != "admin":
+    if session.get("usuario") != "admin":
         return redirect("/")
 
-    confirmados = sorted(
-        agendamentos,
+    agendamentos = carregar_agendamentos()
+
+    confirmadas = sorted(
+        [a for a in agendamentos if a["status"] == "confirmado"],
         key=lambda x: (x["data"], x["hora"])
     )
 
     return render_template(
         "admin.html",
-        confirmados=confirmados,
-        total=len(confirmados)
+        confirmadas=confirmadas,
+        total=len(confirmadas)
     )
 
 
