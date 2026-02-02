@@ -1,104 +1,123 @@
-from flask import Flask, render_template, request, redirect, session
-import json
-import os
+from flask import Flask, render_template, request, redirect, session, url_for
 
 app = Flask(__name__)
-app.secret_key = "unifacvest123"
+app.secret_key = 'segredo123'
 
-ARQUIVO = "agendamentos.json"
+# ==========================
+# "BANCO DE DADOS" SIMPLES
+# ==========================
+provas = []
+contador_id = 1
 
-
-# ---------- UTIL ----------
-def carregar_agendamentos():
-    if not os.path.exists(ARQUIVO):
-        return []
-    with open(ARQUIVO, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def salvar_agendamentos(lista):
-    with open(ARQUIVO, "w", encoding="utf-8") as f:
-        json.dump(lista, f, indent=4, ensure_ascii=False)
-
-
-# ---------- LOGIN ----------
-@app.route("/", methods=["GET", "POST"])
+# ==========================
+# LOGIN
+# ==========================
+@app.route('/', methods=['GET', 'POST'])
 def login():
-    if request.method == "POST":
-        usuario = request.form.get("usuario")
-        senha = request.form.get("senha")
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        senha = request.form['senha']
 
-        if usuario == "admin" and senha == "admin123":
-            session["usuario"] = "admin"
-            return redirect("/admin")
+        if usuario == 'aluno' and senha == 'aluno123':
+            session['user'] = 'aluno'
+            return redirect('/agendar')
 
-        if usuario == "aluno" and senha == "aluno123":
-            session["usuario"] = "aluno"
-            return redirect("/agendar")
+        if usuario == 'admin' and senha == 'admin123':
+            session['user'] = 'admin'
+            return redirect('/admin')
 
-        return render_template("login.html", erro="Usuário ou senha inválidos")
+        return render_template('login.html', erro='Usuário ou senha inválidos')
 
-    return render_template("login.html")
+    return render_template('login.html')
 
 
-# ---------- AGENDAR ----------
-@app.route("/agendar", methods=["GET", "POST"])
+# ==========================
+# AGENDAMENTO (ALUNO)
+# ==========================
+@app.route('/agendar', methods=['GET', 'POST'])
 def agendar():
-    if session.get("usuario") != "aluno":
-        return redirect("/")
+    global contador_id
 
-    if request.method == "POST":
-        nome = request.form.get("nome")
-        disciplinas = request.form.get("disciplinas")
-        data = request.form.get("data")
-        hora = request.form.get("hora")
+    if session.get('user') != 'aluno':
+        return redirect('/')
 
-        if not all([nome, disciplinas, data, hora]):
-            return "Erro: dados incompletos", 400
+    if request.method == 'POST':
+        prova = {
+            'id': contador_id,
+            'nome': request.form['nome'],
+            'disciplinas': request.form['disciplinas'],
+            'data': request.form['data'],
+            'hora': request.form['hora'],
+            'status': 'pendente',
+            'presente': False
+        }
+        provas.append(prova)
+        contador_id += 1
 
-        agendamentos = carregar_agendamentos()
+        return render_template('agendar.html', sucesso=True)
 
-        agendamentos.append({
-            "nome": nome,
-            "disciplinas": disciplinas,
-            "data": data,
-            "hora": hora,
-            "status": "confirmado"
-        })
-
-        salvar_agendamentos(agendamentos)
-
-        return render_template("agendar.html", sucesso=True)
-
-    return render_template("agendar.html")
+    return render_template('agendar.html')
 
 
-# ---------- ADMIN ----------
-@app.route("/admin")
+# ==========================
+# ADMIN
+# ==========================
+@app.route('/admin')
 def admin():
-    if session.get("usuario") != "admin":
-        return redirect("/")
+    if session.get('user') != 'admin':
+        return redirect('/')
 
-    agendamentos = carregar_agendamentos()
-
-    confirmadas = sorted(
-        [a for a in agendamentos if a["status"] == "confirmado"],
-        key=lambda x: (x["data"], x["hora"])
-    )
+    pendentes = [p for p in provas if p['status'] == 'pendente']
+    confirmadas = [p for p in provas if p['status'] == 'confirmada']
 
     return render_template(
-        "admin.html",
-        confirmadas=confirmadas,
-        total=len(confirmadas)
+        'admin.html',
+        pendentes=pendentes,
+        confirmadas=confirmadas
     )
 
 
-# ---------- SAIR ----------
-@app.route("/sair")
+# ==========================
+# CONFIRMAR PROVA
+# ==========================
+@app.route('/confirmar/<int:id>')
+def confirmar(id):
+    if session.get('user') != 'admin':
+        return redirect('/')
+
+    for p in provas:
+        if p['id'] == id:
+            p['status'] = 'confirmada'
+            break
+
+    return redirect('/admin')
+
+
+# ==========================
+# MARCAR PRESENÇA  ✅ (AQUI ESTAVA O ERRO)
+# ==========================
+@app.route('/presenca/<int:id>')
+def presenca(id):
+    if session.get('user') != 'admin':
+        return redirect('/')
+
+    for p in provas:
+        if p['id'] == id:
+            p['presente'] = True
+            break
+
+    return redirect('/admin')
+
+
+# ==========================
+# SAIR
+# ==========================
+@app.route('/sair')
 def sair():
     session.clear()
-    return redirect("/")
+    return redirect('/')
 
 
-if __name__ == "__main__":
+# ==========================
+if __name__ == '__main__':
     app.run(debug=True)
