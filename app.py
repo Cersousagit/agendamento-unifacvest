@@ -1,74 +1,51 @@
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session
 
 app = Flask(__name__)
-app.secret_key = 'segredo123'
+app.secret_key = 'chave-secreta'
 
-# ==========================
-# "BANCO DE DADOS" SIMPLES
-# ==========================
+# Banco em memória
 provas = []
 contador_id = 1
 
-# ==========================
 # LOGIN
-# ==========================
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        usuario = request.form['usuario']
-        senha = request.form['senha']
-
-        if usuario == 'aluno' and senha == 'aluno123':
-            session['user'] = 'aluno'
-            return redirect('/agendar')
-
-        if usuario == 'admin' and senha == 'admin123':
+        if request.form['senha'] == 'admin':
             session['user'] = 'admin'
             return redirect('/admin')
-
-        return render_template('login.html', erro='Usuário ou senha inválidos')
-
     return render_template('login.html')
 
 
-# ==========================
-# AGENDAMENTO (ALUNO)
-# ==========================
+# AGENDAMENTO DO ALUNO
 @app.route('/agendar', methods=['GET', 'POST'])
 def agendar():
     global contador_id
 
-    if session.get('user') != 'aluno':
-        return redirect('/')
-
     if request.method == 'POST':
-        prova = {
+        nova_prova = {
             'id': contador_id,
             'nome': request.form['nome'],
-            'disciplinas': request.form['disciplinas'],
+            'disciplinas': request.form['disciplina'],
             'data': request.form['data'],
             'hora': request.form['hora'],
-            'status': 'pendente',
-            'presente': False
+            'confirmado': True
         }
-        provas.append(prova)
+        provas.append(nova_prova)
         contador_id += 1
+        return redirect('/agendar')
 
-        return render_template('agendar.html', sucesso=True)
-
-    return render_template('agendar.html')
+    return render_template('agendamento.html')
 
 
-# ==========================
-# ADMIN
-# ==========================
+# PAINEL ADMIN
 @app.route('/admin')
 def admin():
     if session.get('user') != 'admin':
         return redirect('/')
 
-    pendentes = [p for p in provas if p['status'] == 'pendente']
-    confirmadas = [p for p in provas if p['status'] == 'confirmada']
+    pendentes = [p for p in provas if not p['confirmado']]
+    confirmadas = [p for p in provas if p['confirmado']]
 
     return render_template(
         'admin.html',
@@ -77,37 +54,24 @@ def admin():
     )
 
 
-# ==========================
-# CONFIRMAR PROVA
-# ==========================
-@app.route('/confirmar/<int:id>')
-def confirmar(id):
+# CONFIRMAR PRESENÇA (REMOVE DEFINITIVAMENTE)
+@app.route('/presenca/<int:id>')
+def presenca(id):
     if session.get('user') != 'admin':
         return redirect('/')
 
-    for p in provas:
-        if p['id'] == id:
-            p['status'] = 'confirmada'
-            break
+    global provas
+    provas = [p for p in provas if p['id'] != id]
 
     return redirect('/admin')
 
 
-# ==========================
-# MARCAR PRESENÇA  ✅ (AQUI ESTAVA O ERRO)
-# ==========================
-✔ Presença confirmada
-
-
-# ==========================
 # SAIR
-# ==========================
 @app.route('/sair')
 def sair():
     session.clear()
     return redirect('/')
 
 
-# ==========================
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
