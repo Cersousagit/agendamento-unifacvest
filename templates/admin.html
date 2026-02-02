@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+    <meta charset="UTF-8">
     <title>Admin</title>
     <style>
         body { font-family: Arial; background: #f2f2f2; margin: 0; }
@@ -15,12 +16,17 @@
             background: #eee; margin-bottom: 20px;
             text-align: center;
         }
-        button {
-            background: #b30000; color: white; border: none;
-            padding: 5px 10px;
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            color: white;
             cursor: pointer;
+            border-radius: 4px;
         }
-        hr { border: 0; border-top: 1px solid #ccc; }
+        .confirmar { background: #b30000; }
+        .presenca { background: #2e8b57; }
+        .presente { color: green; font-weight: bold; }
+        hr { margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -38,21 +44,12 @@
     <h3>Pendentes</h3>
     {% for p in pendentes %}
         <p>
-            <strong>Aluno:</strong> {{ p.nome }}<br>
-
-            <strong>Disciplinas:</strong>
-            {% if p.disciplinas is iterable and p.disciplinas is not string %}
-                {{ p.disciplinas | join(', ') }}
-            {% else %}
-                {{ p.disciplinas }}
-            {% endif %}
-            <br>
-
-            <strong>Data:</strong> {{ p.data }} às {{ p.hora }}
+            <b>Aluno:</b> {{ p.nome }}<br>
+            <b>Disciplinas:</b> {{ p.disciplinas }}<br>
+            <b>Data:</b> {{ p.data }} às {{ p.hora }}
             <br><br>
-
             <a href="/confirmar/{{ p.id }}">
-                <button>Confirmar</button>
+                <button class="btn confirmar">Confirmar Prova</button>
             </a>
         </p>
         <hr>
@@ -63,24 +60,23 @@
     <h3>Confirmadas</h3>
     {% for c in confirmadas %}
         <p>
-            <strong>Aluno:</strong> {{ c.nome }}<br>
+            <b>Aluno:</b> {{ c.nome }}<br>
+            <b>Disciplinas:</b> {{ c.disciplinas }}<br>
+            <b>Data:</b> {{ c.data }} às {{ c.hora }}<br>
 
-            <strong>Disciplinas:</strong>
-            {% if c.disciplinas is iterable and c.disciplinas is not string %}
-                {{ c.disciplinas | join(', ') }}
+            {% if not c.presente %}
+                <a href="/presenca/{{ c.id }}">
+                    <button class="btn presenca">Marcar Presença</button>
+                </a>
             {% else %}
-                {{ c.disciplinas }}
+                <span class="presente">✔ Presença confirmada</span>
             {% endif %}
-            <br>
-
-            <strong>Data:</strong> {{ c.data }} às {{ c.hora }}
         </p>
         <hr>
     {% else %}
         <p>Nenhuma prova confirmada.</p>
     {% endfor %}
 
-    <br>
     <a href="/sair">Sair</a>
 </div>
 
