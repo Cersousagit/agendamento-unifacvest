@@ -18,7 +18,9 @@
         button {
             background: #b30000; color: white; border: none;
             padding: 5px 10px;
+            cursor: pointer;
         }
+        hr { border: 0; border-top: 1px solid #ccc; }
     </style>
 </head>
 <body>
@@ -36,9 +38,19 @@
     <h3>Pendentes</h3>
     {% for p in pendentes %}
         <p>
-            {{ p.nome }} – {{ p.disciplina }}<br>
-            {{ p.data }} às {{ p.hora }}
+            <strong>Aluno:</strong> {{ p.nome }}<br>
+
+            <strong>Disciplinas:</strong>
+            {% if p.disciplinas is iterable and p.disciplinas is not string %}
+                {{ p.disciplinas | join(', ') }}
+            {% else %}
+                {{ p.disciplinas }}
+            {% endif %}
             <br>
+
+            <strong>Data:</strong> {{ p.data }} às {{ p.hora }}
+            <br><br>
+
             <a href="/confirmar/{{ p.id }}">
                 <button>Confirmar</button>
             </a>
@@ -50,7 +62,20 @@
 
     <h3>Confirmadas</h3>
     {% for c in confirmadas %}
-        <p>{{ c.nome }} – {{ c.data }} às {{ c.hora }}</p>
+        <p>
+            <strong>Aluno:</strong> {{ c.nome }}<br>
+
+            <strong>Disciplinas:</strong>
+            {% if c.disciplinas is iterable and c.disciplinas is not string %}
+                {{ c.disciplinas | join(', ') }}
+            {% else %}
+                {{ c.disciplinas }}
+            {% endif %}
+            <br>
+
+            <strong>Data:</strong> {{ c.data }} às {{ c.hora }}
+        </p>
+        <hr>
     {% else %}
         <p>Nenhuma prova confirmada.</p>
     {% endfor %}
