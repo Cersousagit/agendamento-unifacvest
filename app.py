@@ -96,17 +96,7 @@ def confirmar(id):
 # ==========================
 # MARCAR PRESENÇA  ✅ (AQUI ESTAVA O ERRO)
 # ==========================
-@app.route('/presenca/<int:id>')
-def presenca(id):
-    if session.get('user') != 'admin':
-        return redirect('/')
-
-    for p in provas:
-        if p['id'] == id:
-            p['presente'] = True
-            break
-
-    return redirect('/admin')
+✔ Presença confirmada
 
 
 # ==========================
