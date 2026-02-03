@@ -3,21 +3,26 @@
 <head>
     <title>Login</title>
     <style>
-        body { margin:0; font-family:Arial; background:#f2f2f2; }
-        header { background:#b30000; padding:15px; text-align:center; }
-        img { height:50px; }
-        .box { width:400px; margin:50px auto; background:white; padding:20px; border-radius:6px; }
-        input, button { width:100%; padding:10px; margin:8px 0; }
-        button { background:#b30000; color:white; border:none; }
-        .erro { color:red; }
+        body { margin:0; font-family:Arial, sans-serif; background:linear-gradient(135deg, #f2f2f2 0%, #e0e0e0 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        header { background:linear-gradient(135deg, #b30000 0%, #990000 100%); padding:20px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.1); position:fixed; top:0; width:100%; z-index:1; }
+        img { height:60px; transition:transform 0.3s; }
+        img:hover { transform:scale(1.05); }
+        .box { width:90%; max-width:400px; background:white; padding:30px; border-radius:12px; box-shadow:0 8px 16px rgba(0,0,0,0.1); margin-top:100px; }
+        input { width:100%; padding:12px; margin:10px 0; border:1px solid #ccc; border-radius:6px; transition:border-color 0.3s; }
+        input:focus { border-color:#b30000; outline:none; }
+        button { background:#b30000; color:white; border:none; padding:12px; border-radius:6px; cursor:pointer; transition:background 0.3s, transform 0.2s; }
+        button:hover { background:#990000; transform:scale(1.05); }
+        .erro { color:red; animation:fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @media (max-width:600px) { .box { width:95%; padding:20px; } header { padding:15px; } img { height:50px; } }
     </style>
 </head>
 <body>
 <header>
-    <img src="/static/unifacvest.png">
+    <img src="/static/unifacvest.png" alt="Unifacvest">
 </header>
 <div class="box">
-    <h2>Login</h2>
+    <h2 style="text-align:center; color:#b30000;">Login</h2>
     {% if erro %}
         <p class="erro">{{ erro }}</p>
     {% endif %}
