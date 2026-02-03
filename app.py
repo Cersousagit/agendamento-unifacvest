@@ -66,6 +66,7 @@ def login():
         return render_template("login.html", erro="Usuário ou senha inválidos")
     return render_template("login.html")
 
+
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     global contador_id, agendamentos
@@ -73,24 +74,48 @@ def agendar():
         return redirect("/")
     if request.method == "POST":
         try:
-            disciplinas = request.form.getlist("disciplinas")
+            nome = request.form.get("nome", "").strip()
+            disciplinas_raw = request.form.getlist("disciplinas")
+            data = request.form.get("data", "").strip()
+            hora = request.form.get("hora", "").strip()
+            
+            print(f"Debug: nome={nome}, disciplinas={disciplinas_raw}, data={data}, hora={hora}")  # Debug
+            
+            if not nome or not data or not hora:
+                return render_template("agendar.html", erro="Nome, data e hora são obrigatórios")
+            
+            disciplinas = [d.strip() for d in disciplinas_raw if d.strip()]
             if not disciplinas:
                 return render_template("agendar.html", erro="Adicione pelo menos uma disciplina")
+            
+            # Validação básica de data/hora
+            try:
+                datetime.strptime(data, "%Y-%m-%d")
+                datetime.strptime(hora, "%H:%M")
+            except ValueError:
+                return render_template("agendar.html", erro="Data ou hora inválida")
+            
             novo = {
                 "id": contador_id,
-                "nome": request.form["nome"],
+                "nome": nome,
                 "disciplinas": disciplinas,
-                "data": request.form["data"],
-                "hora": request.form["hora"],
+                "data": data,
+                "hora": hora,
                 "status": "pendente"
             }
             agendamentos.append(novo)
-            save_agendamentos(agendamentos)
+            try:
+                save_agendamentos(agendamentos)
+            except Exception as save_e:
+                print(f"Erro ao salvar: {save_e}")  # Debug: não falhe por salvamento
             contador_id += 1
             return render_template("agendar.html", sucesso=True)
-        except KeyError:
-            return render_template("agendar.html", erro="Dados inválidos")
+        except Exception as e:
+            print(f"Erro geral ao agendar: {e}")  # Debug: verifique logs
+            return render_template("agendar.html", erro="Erro interno. Verifique os dados e tente novamente.")
     return render_template("agendar.html")
+
+
 
 @app.route("/admin")
 def admin():
