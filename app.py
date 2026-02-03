@@ -75,25 +75,15 @@ def agendar():
     if request.method == "POST":
         try:
             nome = request.form.get("nome", "").strip()
-            disciplinas_raw = request.form.getlist("disciplinas")
             data = request.form.get("data", "").strip()
             hora = request.form.get("hora", "").strip()
-            
-            print(f"Debug: nome={nome}, disciplinas={disciplinas_raw}, data={data}, hora={hora}")  # Debug
-            
-            if not nome or not data or not hora:
-                return render_template("agendar.html", erro="Nome, data e hora são obrigatórios")
-            
+            disciplinas_raw = request.form.getlist("disciplinas")
+            if not disciplinas_raw:
+                disciplinas_raw = [request.form.get("disciplinas", "")]  # Fallback se não for lista
             disciplinas = [d.strip() for d in disciplinas_raw if d.strip()]
-            if not disciplinas:
-                return render_template("agendar.html", erro="Adicione pelo menos uma disciplina")
             
-            # Validação básica de data/hora
-            try:
-                datetime.strptime(data, "%Y-%m-%d")
-                datetime.strptime(hora, "%H:%M")
-            except ValueError:
-                return render_template("agendar.html", erro="Data ou hora inválida")
+            if not nome or not data or not hora or not disciplinas:
+                return render_template("agendar.html", erro="Todos os campos são obrigatórios")
             
             novo = {
                 "id": contador_id,
@@ -104,15 +94,11 @@ def agendar():
                 "status": "pendente"
             }
             agendamentos.append(novo)
-            try:
-                save_agendamentos(agendamentos)
-            except Exception as save_e:
-                print(f"Erro ao salvar: {save_e}")  # Debug: não falhe por salvamento
+            save_agendamentos(agendamentos)
             contador_id += 1
             return render_template("agendar.html", sucesso=True)
         except Exception as e:
-            print(f"Erro geral ao agendar: {e}")  # Debug: verifique logs
-            return render_template("agendar.html", erro="Erro interno. Verifique os dados e tente novamente.")
+            return render_template("agendar.html", erro="Erro interno. Tente novamente.")
     return render_template("agendar.html")
 
 
