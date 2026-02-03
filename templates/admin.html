@@ -91,7 +91,7 @@
     {% for c in confirmadas %}
         <p>
             {{ c.nome }} – {{ c.disciplinas|join(', ') }}<br>
-            📅 {{ c.data }} às {{ p.hora }}<br>
+            📅 {{ c.data }} às {{ c.hora }}<br>
             <a href="/presenca/{{ c.id }}">
                 <button class="pres">✔ Presença confirmada</button>
             </a>
