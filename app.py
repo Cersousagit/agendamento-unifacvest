@@ -73,6 +73,8 @@ def agendar():
 
 # ... (código anterior permanece)
 
+# ... (código anterior permanece igual, até a rota /admin)
+
 @app.route("/admin")
 def admin():
     if session.get("usuario") != "admin":
@@ -86,6 +88,8 @@ def admin():
         pendentes = [p for p in pendentes if filter_start <= p["data"] <= filter_end]
         confirmadas = [c for c in confirmadas if filter_start <= c["data"] <= filter_end]
     return render_template("admin.html", pendentes=pendentes, confirmadas=confirmadas)
+
+
 
 @app.route("/confirmar/<int:id>")
 def confirmar(id):
