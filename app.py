@@ -12,24 +12,36 @@ DATA_FILE = 'agendamentos.json'
 HISTORICO_FILE = 'historico.json'
 
 def load_agendamentos():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r') as f:
-            return json.load(f)
+    try:
+        if os.path.exists(DATA_FILE):
+            with open(DATA_FILE, 'r') as f:
+                return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"Erro ao carregar agendamentos: {e}. Usando lista vazia.")
     return []
 
 def save_agendamentos(data):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(data, f)
+    try:
+        with open(DATA_FILE, 'w') as f:
+            json.dump(data, f)
+    except IOError as e:
+        print(f"Erro ao salvar agendamentos: {e}. Dados não persistidos.")
 
 def load_historico():
-    if os.path.exists(HISTORICO_FILE):
-        with open(HISTORICO_FILE, 'r') as f:
-            return json.load(f)
+    try:
+        if os.path.exists(HISTORICO_FILE):
+            with open(HISTORICO_FILE, 'r') as f:
+                return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"Erro ao carregar histórico: {e}. Usando lista vazia.")
     return []
 
 def save_historico(data):
-    with open(HISTORICO_FILE, 'w') as f:
-        json.dump(data, f)
+    try:
+        with open(HISTORICO_FILE, 'w') as f:
+            json.dump(data, f)
+    except IOError as e:
+        print(f"Erro ao salvar histórico: {e}. Dados não persistidos.")
 
 agendamentos = load_agendamentos()
 historico = load_historico()
@@ -37,20 +49,26 @@ contador_id = max([a.get('id', 0) for a in agendamentos + historico], default=0)
 
 def limpar_historico_antigo():
     global historico
-    agora = datetime.now()
-    limite = agora - timedelta(days=365)  # Manter por 1 ano
-    historico[:] = [h for h in historico if datetime.strptime(h['data'], "%Y-%m-%d") > limite]
-    save_historico(historico)
+    try:
+        agora = datetime.now()
+        limite = agora - timedelta(days=365)
+        historico[:] = [h for h in historico if datetime.strptime(h['data'], "%Y-%m-%d") > limite]
+        save_historico(historico)
+    except (ValueError, KeyError) as e:
+        print(f"Erro ao limpar histórico: {e}")
 
 def remover_expirados():
     global agendamentos, historico
-    agora = datetime.now()
-    expirados = [a for a in agendamentos if a.get('status') == 'confirmada' and datetime.strptime(f"{a['data']} {a['hora']}", "%Y-%m-%d %H:%M") < agora]
-    for exp in expirados:
-        historico.append(exp)
-    agendamentos[:] = [a for a in agendamentos if a not in expirados]
-    save_agendamentos(agendamentos)
-    save_historico(historico)
+    try:
+        agora = datetime.now()
+        expirados = [a for a in agendamentos if a.get('status') == 'confirmada' and datetime.strptime(f"{a['data']} {a['hora']}", "%Y-%m-%d %H:%M") < agora]
+        for exp in expirados:
+            historico.append(exp)
+        agendamentos[:] = [a for a in agendamentos if a not in expirados]
+        save_agendamentos(agendamentos)
+        save_historico(historico)
+    except (ValueError, KeyError) as e:
+        print(f"Erro ao remover expirados: {e}")
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -66,7 +84,6 @@ def login():
         return render_template("login.html", erro="Usuário ou senha inválidos")
     return render_template("login.html")
 
-
 @app.route("/agendar", methods=["GET", "POST"])
 def agendar():
     global contador_id, agendamentos
@@ -79,7 +96,7 @@ def agendar():
             hora = request.form.get("hora", "").strip()
             disciplinas_raw = request.form.getlist("disciplinas")
             if not disciplinas_raw:
-                disciplinas_raw = [request.form.get("disciplinas", "")]  # Fallback se não for lista
+                disciplinas_raw = [request.form.get("disciplinas", "")]  # Fallback
             disciplinas = [d.strip() for d in disciplinas_raw if d.strip()]
             
             if not nome or not data or not hora or not disciplinas:
@@ -98,10 +115,9 @@ def agendar():
             contador_id += 1
             return render_template("agendar.html", sucesso=True)
         except Exception as e:
+            print(f"Erro em /agendar: {e}")
             return render_template("agendar.html", erro="Erro interno. Tente novamente.")
     return render_template("agendar.html")
-
-
 
 @app.route("/admin")
 def admin():
@@ -120,12 +136,14 @@ def admin():
     # Dados para gráficos
     total_pendentes = len(pendentes)
     total_confirmadas = len(confirmadas)
-    # Provas por mês (últimos 6 meses)
     provas_por_mes = defaultdict(int)
     for a in agendamentos + historico:
-        mes = a["data"][:7]  # YYYY-MM
-        provas_por_mes[mes] += 1
-    meses = list(provas_por_mes.keys())[-6:]  # Últimos 6 meses
+        try:
+            mes = a["data"][:7]
+            provas_por_mes[mes] += 1
+        except (KeyError, IndexError):
+            pass
+    meses = list(provas_por_mes.keys())[-6:]
     valores_meses = [provas_por_mes[m] for m in meses]
     
     return render_template("admin.html", 
