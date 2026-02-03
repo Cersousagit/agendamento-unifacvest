@@ -8,6 +8,7 @@ app = Flask(__name__)
 app.secret_key = "unifacvest-secret"
 
 DATA_FILE = 'agendamentos.json'
+HISTORICO_FILE = 'historico.json'  # Novo arquivo para histórico de removidos
 
 def load_agendamentos():
     if os.path.exists(DATA_FILE):
@@ -19,17 +20,29 @@ def save_agendamentos(data):
     with open(DATA_FILE, 'w') as f:
         json.dump(data, f)
 
+def load_historico():
+    if os.path.exists(HISTORICO_FILE):
+        with open(HISTORICO_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_historico(data):
+    with open(HISTORICO_FILE, 'w') as f:
+        json.dump(data, f)
+
 agendamentos = load_agendamentos()
-contador_id = max([a.get('id', 0) for a in agendamentos], default=0) + 1
+historico = load_historico()  # Lista de agendamentos removidos
+contador_id = max([a.get('id', 0) for a in agendamentos + historico], default=0) + 1
 
 def remover_expirados():
-    global agendamentos
+    global agendamentos, historico
     agora = datetime.now()
-    agendamentos[:] = [a for a in agendamentos if not (
-        a.get('status') == 'confirmada' and
-        datetime.strptime(f"{a['data']} {a['hora']}", "%Y-%m-%d %H:%M") < agora
-    )]
+    expirados = [a for a in agendamentos if a.get('status') == 'confirmada' and datetime.strptime(f"{a['data']} {a['hora']}", "%Y-%m-%d %H:%M") < agora]
+    for exp in expirados:
+        historico.append(exp)  # Move para histórico
+    agendamentos[:] = [a for a in agendamentos if a not in expirados]
     save_agendamentos(agendamentos)
+    save_historico(historico)
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -52,7 +65,7 @@ def agendar():
         return redirect("/")
     if request.method == "POST":
         try:
-            disciplinas = request.form.getlist("disciplinas")  # Lista de disciplinas
+            disciplinas = request.form.getlist("disciplinas")
             if not disciplinas:
                 return render_template("agendar.html", erro="Adicione pelo menos uma disciplina")
             novo = {
@@ -71,10 +84,6 @@ def agendar():
             return render_template("agendar.html", erro="Dados inválidos")
     return render_template("agendar.html")
 
-# ... (código anterior permanece)
-
-# ... (código anterior permanece igual, até a rota /admin)
-
 @app.route("/admin")
 def admin():
     if session.get("usuario") != "admin":
@@ -84,12 +93,11 @@ def admin():
     filter_end = request.args.get("filter_end")
     pendentes = sorted([a for a in agendamentos if a["status"] == "pendente"], key=lambda x: (x["data"], x["hora"]))
     confirmadas = sorted([a for a in agendamentos if a["status"] == "confirmada"], key=lambda x: (x["data"], x["hora"]))
+    # Incluir histórico no filtro se solicitado
     if filter_start and filter_end:
-        pendentes = [p for p in pendentes if filter_start <= p["data"] <= filter_end]
-        confirmadas = [c for c in confirmadas if filter_start <= c["data"] <= filter_end]
+        pendentes = [p for p in pendentes + [h for h in historico if h["status"] == "pendente"] if filter_start <= p["data"] <= filter_end]
+        confirmadas = [c for c in confirmadas + [h for h in historico if h["status"] == "confirmada"] if filter_start <= c["data"] <= filter_end]
     return render_template("admin.html", pendentes=pendentes, confirmadas=confirmadas)
-
-
 
 @app.route("/confirmar/<int:id>")
 def confirmar(id):
@@ -106,9 +114,18 @@ def confirmar(id):
 def presenca(id):
     if session.get("usuario") != "admin":
         return redirect("/")
-    global agendamentos
-    agendamentos = [a for a in agendamentos if a["id"] != id]  # Remove ao confirmar presença
-    save_agendamentos(agendamentos)
+    global agendamentos, historico
+    # Remove apenas o item com ID específico
+    item_removido = None
+    for a in agendamentos:
+        if a["id"] == id:
+            item_removido = a
+            break
+    if item_removido:
+        agendamentos.remove(item_removido)
+        historico.append(item_removido)  # Adiciona ao histórico
+        save_agendamentos(agendamentos)
+        save_historico(historico)
     return redirect("/admin")
 
 @app.route("/download")
@@ -122,7 +139,9 @@ def download():
     wb = Workbook()
     ws = wb.active
     ws.append(["ID", "Nome", "Disciplinas", "Data", "Hora", "Status"])
-    for a in agendamentos:
+    # Incluir todos os agendamentos (ativos + históricos) no período
+    todos = agendamentos + historico
+    for a in todos:
         if start <= a["data"] <= end:
             ws.append([a["id"], a["nome"], ", ".join(a["disciplinas"]), a["data"], a["hora"], a["status"]])
     filename = f"agendamentos_{start}_to_{end}.xlsx"
