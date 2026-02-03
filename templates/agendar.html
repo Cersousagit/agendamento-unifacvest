@@ -6,41 +6,51 @@
         body { margin:0; font-family:Arial; background:#f2f2f2; }
         header { background:#b30000; padding:15px; text-align:center; }
         img { height:50px; }
-        .box {
-            width:500px; margin:50px auto; background:white;
-            padding:20px; border-radius:6px;
-        }
-        input, button {
-            width:100%; padding:10px; margin:8px 0;
-        }
+        .box { width:500px; margin:50px auto; background:white; padding:20px; border-radius:6px; }
+        input, button { width:100%; padding:10px; margin:8px 0; }
         button { background:#b30000; color:white; border:none; }
         .ok { color:green; }
+        .erro { color:red; }
+        .disciplina-container { margin:10px 0; }
+        .remove-btn { background:red; width:auto; margin-left:10px; }
     </style>
 </head>
 <body>
-
 <header>
     <img src="/static/unifacvest.png">
 </header>
-
 <div class="box">
     <h2>Agendamento de Provas</h2>
-
     {% if sucesso %}
         <p class="ok">Agendamento realizado com sucesso!</p>
     {% endif %}
-
-    <form method="post">
+    {% if erro %}
+        <p class="erro">{{ erro }}</p>
+    {% endif %}
+    <form method="post" id="agendamento-form">
         <input name="nome" placeholder="Nome do aluno" required>
-        <input name="disciplina" placeholder="Disciplina" required>
+        <div id="disciplinas">
+            <input name="disciplinas" placeholder="Disciplina" required>
+        </div>
+        <button type="button" onclick="addDisciplina()">Adicionar Disciplina</button>
         <input type="date" name="data" required>
         <input type="time" name="hora" required>
         <button type="submit">Confirmar Agendamento</button>
     </form>
-
     <br>
     <a href="/sair">Sair</a>
 </div>
-
+<script>
+    function addDisciplina() {
+        const container = document.getElementById('disciplinas');
+        const input = document.createElement('div');
+        input.className = 'disciplina-container';
+        input.innerHTML = '<input name="disciplinas" placeholder="Disciplina" required> <button type="button" class="remove-btn" onclick="removeDisciplina(this)">Remover</button>';
+        container.appendChild(input);
+    }
+    function removeDisciplina(btn) {
+        btn.parentElement.remove();
+    }
+</script>
 </body>
 </html>
