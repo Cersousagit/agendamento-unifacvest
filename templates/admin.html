@@ -11,7 +11,7 @@
         button { padding:5px 10px; border:none; color:white; }
         .conf { background:#b30000; }
         .pres { background:green; }
-        .download-form { margin:20px 0; }
+        .download-form, .filter-form { margin:20px 0; }
     </style>
 </head>
 <body>
@@ -22,6 +22,13 @@
     <h2>Provas Agendadas</h2>
     <div class="card">Pendentes<br><b>{{ pendentes|length }}</b></div>
     <div class="card">Confirmadas<br><b>{{ confirmadas|length }}</b></div>
+
+    <h3>Filtrar Provas por Período</h3>
+    <form class="filter-form" method="get" action="/admin">
+        <input type="date" name="filter_start" placeholder="Data início">
+        <input type="date" name="filter_end" placeholder="Data fim">
+        <button type="submit">Filtrar</button>
+    </form>
 
     <h3>Download de Planilha</h3>
     <form class="download-form" method="get" action="/download">
