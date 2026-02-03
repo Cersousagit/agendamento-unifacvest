@@ -6,37 +6,34 @@
         body { margin:0; font-family:Arial; background:#f2f2f2; }
         header { background:#b30000; padding:15px; text-align:center; }
         img { height:50px; }
-        .box {
-            width:700px; margin:50px auto; background:white;
-            padding:20px; border-radius:6px;
-        }
-        .card {
-            display:inline-block; width:45%; padding:10px;
-            background:#eee; text-align:center;
-        }
-        button {
-            padding:5px 10px; border:none; color:white;
-        }
+        .box { width:700px; margin:50px auto; background:white; padding:20px; border-radius:6px; }
+        .card { display:inline-block; width:45%; padding:10px; background:#eee; text-align:center; }
+        button { padding:5px 10px; border:none; color:white; }
         .conf { background:#b30000; }
         .pres { background:green; }
+        .download-form { margin:20px 0; }
     </style>
 </head>
 <body>
-
 <header>
     <img src="/static/unifacvest.png">
 </header>
-
 <div class="box">
     <h2>Provas Agendadas</h2>
-
     <div class="card">Pendentes<br><b>{{ pendentes|length }}</b></div>
     <div class="card">Confirmadas<br><b>{{ confirmadas|length }}</b></div>
+
+    <h3>Download de Planilha</h3>
+    <form class="download-form" method="get" action="/download">
+        <input type="date" name="start" placeholder="Data início" required>
+        <input type="date" name="end" placeholder="Data fim" required>
+        <button type="submit">Baixar Excel</button>
+    </form>
 
     <h3>Pendentes</h3>
     {% for p in pendentes %}
         <p>
-            {{ p.nome }} – {{ p.disciplina }}<br>
+            {{ p.nome }} – {{ p.disciplinas|join(', ') }}<br>
             {{ p.data }} às {{ p.hora }}<br>
             <a href="/confirmar/{{ p.id }}">
                 <button class="conf">Confirmar</button>
@@ -50,7 +47,7 @@
     <h3>Confirmadas</h3>
     {% for c in confirmadas %}
         <p>
-            {{ c.nome }} – {{ c.disciplina }}<br>
+            {{ c.nome }} – {{ c.disciplinas|join(', ') }}<br>
             {{ c.data }} às {{ c.hora }}<br>
             <a href="/presenca/{{ c.id }}">
                 <button class="pres">✔ Presença confirmada</button>
@@ -63,6 +60,5 @@
 
     <a href="/sair">Sair</a>
 </div>
-
 </body>
 </html>
