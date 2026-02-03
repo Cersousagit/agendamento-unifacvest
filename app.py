@@ -103,5 +103,10 @@ def sair():
     session.clear()
     return redirect("/")
 
+# Nova rota para health check (necessária para Render)
+@app.route("/healthz")
+def healthz():
+    return "OK", 200
+
 if __name__ == "__main__":
     app.run(debug=True)
