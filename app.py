@@ -1,14 +1,14 @@
 from flask import Flask, render_template, request, redirect, session, url_for, send_file
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from openpyxl import Workbook
 
 app = Flask(__name__)
 app.secret_key = "unifacvest-secret"
 
 DATA_FILE = 'agendamentos.json'
-HISTORICO_FILE = 'historico.json'  # Novo arquivo para histórico de removidos
+HISTORICO_FILE = 'historico.json'
 
 def load_agendamentos():
     if os.path.exists(DATA_FILE):
@@ -31,15 +31,22 @@ def save_historico(data):
         json.dump(data, f)
 
 agendamentos = load_agendamentos()
-historico = load_historico()  # Lista de agendamentos removidos
+historico = load_historico()
 contador_id = max([a.get('id', 0) for a in agendamentos + historico], default=0) + 1
+
+def limpar_historico_antigo():
+    global historico
+    agora = datetime.now()
+    limite = agora - timedelta(days=365)  # Manter por 1 ano
+    historico[:] = [h for h in historico if datetime.strptime(h['data'], "%Y-%m-%d") > limite]
+    save_historico(historico)
 
 def remover_expirados():
     global agendamentos, historico
     agora = datetime.now()
     expirados = [a for a in agendamentos if a.get('status') == 'confirmada' and datetime.strptime(f"{a['data']} {a['hora']}", "%Y-%m-%d %H:%M") < agora]
     for exp in expirados:
-        historico.append(exp)  # Move para histórico
+        historico.append(exp)
     agendamentos[:] = [a for a in agendamentos if a not in expirados]
     save_agendamentos(agendamentos)
     save_historico(historico)
@@ -88,12 +95,12 @@ def agendar():
 def admin():
     if session.get("usuario") != "admin":
         return redirect("/")
+    limpar_historico_antigo()  # Limpa histórico antigo
     remover_expirados()
     filter_start = request.args.get("filter_start")
     filter_end = request.args.get("filter_end")
     pendentes = sorted([a for a in agendamentos if a["status"] == "pendente"], key=lambda x: (x["data"], x["hora"]))
     confirmadas = sorted([a for a in agendamentos if a["status"] == "confirmada"], key=lambda x: (x["data"], x["hora"]))
-    # Incluir histórico no filtro se solicitado
     if filter_start and filter_end:
         pendentes = [p for p in pendentes + [h for h in historico if h["status"] == "pendente"] if filter_start <= p["data"] <= filter_end]
         confirmadas = [c for c in confirmadas + [h for h in historico if h["status"] == "confirmada"] if filter_start <= c["data"] <= filter_end]
@@ -115,7 +122,6 @@ def presenca(id):
     if session.get("usuario") != "admin":
         return redirect("/")
     global agendamentos, historico
-    # Remove apenas o item com ID específico
     item_removido = None
     for a in agendamentos:
         if a["id"] == id:
@@ -123,7 +129,7 @@ def presenca(id):
             break
     if item_removido:
         agendamentos.remove(item_removido)
-        historico.append(item_removido)  # Adiciona ao histórico
+        historico.append(item_removido)
         save_agendamentos(agendamentos)
         save_historico(historico)
     return redirect("/admin")
@@ -139,7 +145,6 @@ def download():
     wb = Workbook()
     ws = wb.active
     ws.append(["ID", "Nome", "Disciplinas", "Data", "Hora", "Status"])
-    # Incluir todos os agendamentos (ativos + históricos) no período
     todos = agendamentos + historico
     for a in todos:
         if start <= a["data"] <= end:
