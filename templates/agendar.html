@@ -13,6 +13,7 @@
         .erro { color:red; }
         .disciplina-container { margin:10px 0; }
         .remove-btn { background:red; width:auto; margin-left:10px; }
+        .regras { background:#eee; padding:10px; border:1px solid #ccc; border-radius:4px; margin:20px 0; }
     </style>
 </head>
 <body>
@@ -21,6 +22,18 @@
 </header>
 <div class="box">
     <h2>Agendamento de Provas</h2>
+
+    <div class="regras">
+        <h3>Regras para Agendamento</h3>
+        <ul>
+            <li>Informe seu nome completo e selecione pelo menos uma disciplina.</li>
+            <li>Escolha uma data futura (não passada) e um horário válido.</li>
+            <li>Clique em "Adicionar Disciplina" para incluir múltiplas matérias na mesma prova.</li>
+            <li>Após confirmar, aguarde a aprovação do administrador.</li>
+            <li>Provas não confirmadas podem ser canceladas pelo admin.</li>
+        </ul>
+    </div>
+
     {% if sucesso %}
         <p class="ok">Agendamento realizado com sucesso!</p>
     {% endif %}
