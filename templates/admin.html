@@ -8,7 +8,10 @@
         img { height:50px; }
         .box { width:700px; margin:50px auto; background:white; padding:20px; border-radius:6px; }
         .card { display:inline-block; width:45%; padding:10px; background:#eee; text-align:center; }
-        button { padding:5px 10px; border:none; color:white; background:#b30000; }  /* Vermelho para todos os botões */
+        button { padding:5px 10px; border:none; color:white; }
+        .filter-btn, .download-btn { background:#b30000; }  /* Vermelho específico para estes botões */
+        .conf { background:#b30000; }
+        .pres { background:green; }
         .filter-form, .download-form { margin:20px 0; }
     </style>
 </head>
@@ -25,14 +28,14 @@
     <form class="filter-form" method="get" action="/admin">
         <input type="date" name="filter_start" placeholder="Data início">
         <input type="date" name="filter_end" placeholder="Data fim">
-        <button type="submit">Aplicar Filtro</button>
+        <button type="submit" class="filter-btn">Aplicar Filtro</button>
     </form>
 
     <h3>Baixar Planilha por Período</h3>
     <form class="download-form" method="get" action="/download">
         <input type="date" name="start" placeholder="Data início" required>
         <input type="date" name="end" placeholder="Data fim" required>
-        <button type="submit">Baixar Excel</button>
+        <button type="submit" class="download-btn">Baixar Excel</button>
     </form>
 
     <h3>Pendentes</h3>
