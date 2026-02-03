@@ -71,15 +71,20 @@ def agendar():
             return render_template("agendar.html", erro="Dados inválidos")
     return render_template("agendar.html")
 
+# ... (código anterior permanece)
+
 @app.route("/admin")
 def admin():
     if session.get("usuario") != "admin":
         return redirect("/")
-    remover_expirados()  # Remove expirados automaticamente
-    pendentes = sorted([a for a in agendamentos if a["status"] == "pendente"],
-                       key=lambda x: (x["data"], x["hora"]))
-    confirmadas = sorted([a for a in agendamentos if a["status"] == "confirmada"],
-                         key=lambda x: (x["data"], x["hora"]))
+    remover_expirados()
+    filter_start = request.args.get("filter_start")
+    filter_end = request.args.get("filter_end")
+    pendentes = sorted([a for a in agendamentos if a["status"] == "pendente"], key=lambda x: (x["data"], x["hora"]))
+    confirmadas = sorted([a for a in agendamentos if a["status"] == "confirmada"], key=lambda x: (x["data"], x["hora"]))
+    if filter_start and filter_end:
+        pendentes = [p for p in pendentes if filter_start <= p["data"] <= filter_end]
+        confirmadas = [c for c in confirmadas if filter_start <= c["data"] <= filter_end]
     return render_template("admin.html", pendentes=pendentes, confirmadas=confirmadas)
 
 @app.route("/confirmar/<int:id>")
