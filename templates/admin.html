@@ -1,32 +1,24 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Admin</title>
     <style>
-        body { font-family: Arial; background: #f2f2f2; margin: 0; }
-        header { background: #b30000; padding: 15px; text-align: center; }
-        img { height: 50px; }
+        body { margin:0; font-family:Arial; background:#f2f2f2; }
+        header { background:#b30000; padding:15px; text-align:center; }
+        img { height:50px; }
         .box {
-            width: 700px; margin: 50px auto; background: white;
-            padding: 20px; border-radius: 6px;
+            width:700px; margin:50px auto; background:white;
+            padding:20px; border-radius:6px;
         }
         .card {
-            display: inline-block; width: 45%; padding: 10px;
-            background: #eee; margin-bottom: 20px;
-            text-align: center;
+            display:inline-block; width:45%; padding:10px;
+            background:#eee; text-align:center;
         }
-        .btn {
-            padding: 6px 12px;
-            border: none;
-            color: white;
-            cursor: pointer;
-            border-radius: 4px;
+        button {
+            padding:5px 10px; border:none; color:white;
         }
-        .confirmar { background: #b30000; }
-        .presenca { background: #2e8b57; }
-        .presente { color: green; font-weight: bold; }
-        hr { margin: 15px 0; }
+        .conf { background:#b30000; }
+        .pres { background:green; }
     </style>
 </head>
 <body>
@@ -44,12 +36,10 @@
     <h3>Pendentes</h3>
     {% for p in pendentes %}
         <p>
-            <b>Aluno:</b> {{ p.nome }}<br>
-            <b>Disciplinas:</b> {{ p.disciplinas }}<br>
-            <b>Data:</b> {{ p.data }} às {{ p.hora }}
-            <br><br>
+            {{ p.nome }} – {{ p.disciplina }}<br>
+            {{ p.data }} às {{ p.hora }}<br>
             <a href="/confirmar/{{ p.id }}">
-                <button class="btn confirmar">Confirmar Prova</button>
+                <button class="conf">Confirmar</button>
             </a>
         </p>
         <hr>
@@ -60,17 +50,11 @@
     <h3>Confirmadas</h3>
     {% for c in confirmadas %}
         <p>
-            <b>Aluno:</b> {{ c.nome }}<br>
-            <b>Disciplinas:</b> {{ c.disciplinas }}<br>
-            <b>Data:</b> {{ c.data }} às {{ c.hora }}<br>
-
-            {% if not c.presente %}
-                <a href="/presenca/{{ c.id }}">
-                    <button class="btn presenca">Marcar Presença</button>
-                </a>
-            {% else %}
-                <span class="presente">✔ Presença confirmada</span>
-            {% endif %}
+            {{ c.nome }} – {{ c.disciplina }}<br>
+            {{ c.data }} às {{ c.hora }}<br>
+            <a href="/presenca/{{ c.id }}">
+                <button class="pres">✔ Presença confirmada</button>
+            </a>
         </p>
         <hr>
     {% else %}
