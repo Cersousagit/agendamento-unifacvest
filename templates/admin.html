@@ -1,142 +1,166 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <title>Admin</title>
+    <meta charset="UTF-8">
+    <title>Admin - Agendamento</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/estatico/manifest.json">
+    <meta name="theme-color" content="#b30000">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        body { margin:0; font-family:Arial, sans-serif; background:linear-gradient(135deg, #f2f2f2 0%, #e0e0e0 100%); min-height:100vh; }
-        header { background:linear-gradient(135deg, #b30000 0%, #990000 100%); padding:20px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.1); }
-        img { height:60px; transition:transform 0.3s; }
-        img:hover { transform:scale(1.05); }
-        .box { width:90%; max-width:750px; margin:50px auto; background:white; padding:30px; border-radius:12px; box-shadow:0 8px 16px rgba(0,0,0,0.1); }
-        .card { display:inline-block; width:30%; padding:15px; background:#f9f9f9; text-align:center; border-radius:8px; margin:10px; box-shadow:0 2px 4px rgba(0,0,0,0.05); }
-        button { padding:10px 15px; border:none; color:white; border-radius:6px; cursor:pointer; transition:background 0.3s, transform 0.2s; }
-        .filter-btn, .download-btn, .conf { background:#b30000; }
-        .filter-btn:hover, .download-btn:hover, .conf:hover { background:#990000; transform:scale(1.05); }
+        body {
+            margin:0;
+            font-family:Arial, sans-serif;
+            background:linear-gradient(135deg, #f2f2f2 0%, #e0e0e0 100%);
+        }
+
+        header {
+            background:#b30000;
+            padding:15px;
+            text-align:center;
+        }
+
+        img {
+            height:50px;
+        }
+
+        .box {
+            width:95%;
+            max-width:900px;
+            margin:20px auto;
+            background:white;
+            padding:20px;
+            border-radius:10px;
+        }
+
+        .card {
+            display:inline-block;
+            width:30%;
+            padding:10px;
+            background:#f9f9f9;
+            text-align:center;
+            border-radius:8px;
+            margin:5px;
+        }
+
+        button {
+            padding:10px;
+            border:none;
+            color:white;
+            border-radius:6px;
+            cursor:pointer;
+        }
+
+        .conf { background:#b30000; }
         .pres { background:green; }
-        .pres:hover { background:#006600; transform:scale(1.05); }
-        .filter-form, .download-form { margin:20px 0; }
-        .regras { background:#f9f9f9; padding:15px; border:1px solid #ddd; border-radius:8px; margin:20px 0; box-shadow:0 2px 4px rgba(0,0,0,0.05); }
-        input { padding:10px; border:1px solid #ccc; border-radius:6px; transition:border-color 0.3s; }
-        input:focus { border-color:#b30000; outline:none; }
-        .dashboard { background:#f9f9f9; padding:20px; border-radius:8px; margin:20px 0; box-shadow:0 2px 4px rgba(0,0,0,0.05); }
-        canvas { max-width:100%; height:300px; }
-        @media (max-width:600px) { .box { width:95%; padding:20px; } .card { width:100%; margin:10px 0; } }
+
+        input {
+            padding:8px;
+            margin:5px;
+        }
+
+        @media (max-width:600px) {
+            .card { width:100%; }
+        }
     </style>
 </head>
+
 <body>
+
 <header>
-    <img src="/static/unifacvest.png" alt="Unifacvest">
+    <img src="/static/unifacvest.png">
 </header>
+
 <div class="box">
-    <h2 style="text-align:center; color:#b30000;">Provas Agendadas</h2>
-    <div class="card">📋 Pendentes<br><b>{{ total_pendentes }}</b></div>
-    <div class="card">✅ Confirmadas<br><b>{{ total_confirmadas }}</b></div>
-    <div class="card">📊 Total<br><b>{{ total_pendentes + total_confirmadas }}</b></div>
-    
-    <div class="dashboard">
-        <h3>📈 Dashboard de Dados</h3>
-        <div style="display:flex; justify-content:space-around; flex-wrap:wrap;">
-            <div style="width:45%; min-width:300px;">
-                <h4>Status das Provas</h4>
-                <canvas id="statusChart"></canvas>
-            </div>
-            <div style="width:45%; min-width:300px;">
-                <h4>Provas por Mês</h4>
-                <canvas id="mesChart"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <div class="regras">
-        <h3>Regras para Gerenciamento</h3>
-        <ul>
-            <li>Provas pendentes aguardam confirmação; clique "Confirmar" para aprovar.</li>
-            <li>Provas confirmadas podem ter presença marcada clicando "✔ Presença confirmada" (remove da lista ativa).</li>
-            <li>Use "Aplicar Filtro" para visualizar provas em um período específico (inclui histórico).</li>
-            <li>Baixe planilhas Excel por período para relatórios (inclui dados removidos até 1 ano).</li>
-            <li>Provas expiradas (data/hora passada) são removidas automaticamente.</li>
-        </ul>
-    </div>
-    
-    <h3>🔍 Aplicar Filtro por Período</h3>
-    <form class="filter-form" method="get" action="/admin">
-        <input type="date" name="filter_start" placeholder="Data início">
-        <input type="date" name="filter_end" placeholder="Data fim">
-        <button type="submit" class="filter-btn">Aplicar Filtro</button>
+
+    <h2 style="text-align:center; color:#b30000;">📊 Painel Administrativo</h2>
+
+    <div class="card">Pendentes<br><b>{{ total_pendentes }}</b></div>
+    <div class="card">Confirmadas<br><b>{{ total_confirmadas }}</b></div>
+    <div class="card">Total<br><b>{{ total_pendentes + total_confirmadas }}</b></div>
+
+    <h3>📈 Dashboard</h3>
+
+    <canvas id="statusChart"></canvas>
+    <canvas id="mesChart"></canvas>
+
+    <h3>🔍 Filtro</h3>
+    <form method="get" action="/admin">
+        <input type="date" name="filter_start">
+        <input type="date" name="filter_end">
+        <button class="conf">Filtrar</button>
     </form>
-    
-    <h3>📊 Baixar Planilha por Período</h3>
-    <form class="download-form" method="get" action="/download">
-        <input type="date" name="start" placeholder="Data início" required>
-        <input type="date" name="end" placeholder="Data fim" required>
-        <button type="submit" class="download-btn">Baixar Excel</button>
+
+    <h3>📥 Baixar Excel</h3>
+    <form method="get" action="/download">
+        <input type="date" name="start" required>
+        <input type="date" name="end" required>
+        <button class="conf">Baixar</button>
     </form>
-    
+
     <h3>📋 Pendentes</h3>
     {% for p in pendentes %}
         <p>
-            {{ p.nome }} – {{ p.disciplinas|join(', ') }}<br>
-            📅 {{ p.data }} às {{ p.hora }}<br>
+            <b>{{ p.nome }}</b><br>
+            {{ p.disciplinas|join(', ') }}<br>
+            {{ p.data }} - {{ p.hora }}<br>
             <a href="/confirmar/{{ p.id }}">
                 <button class="conf">Confirmar</button>
             </a>
         </p>
         <hr>
-    {% else %}
-        <p>Nenhuma prova pendente.</p>
     {% endfor %}
-    
+
     <h3>✅ Confirmadas</h3>
     {% for c in confirmadas %}
         <p>
-            {{ c.nome }} – {{ c.disciplinas|join(', ') }}<br>
-            📅 {{ c.data }} às {{ c.hora }}<br>
+            <b>{{ c.nome }}</b><br>
+            {{ c.disciplinas|join(', ') }}<br>
+            {{ c.data }} - {{ c.hora }}<br>
             <a href="/presenca/{{ c.id }}">
-                <button class="pres">✔ Presença confirmada</button>
+                <button class="pres">Presença</button>
             </a>
         </p>
         <hr>
-    {% else %}
-        <p>Nenhuma prova confirmada.</p>
     {% endfor %}
-    
-    <a href="/sair" style="color:#b30000; text-decoration:none; font-weight:bold;">Sair</a>
+
+    <a href="/sair">Sair</a>
+
 </div>
 
 <script>
-    // Gráfico de Pizza: Status
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-    new Chart(statusCtx, {
-        type: 'pie',
-        data: {
-            labels: ['Pendentes', 'Confirmadas'],
-            datasets: [{
-                data: [{{ total_pendentes }}, {{ total_confirmadas }}],
-                backgroundColor: ['#b30000', '#28a745'],
-                borderColor: ['#990000', '#1e7e34'],
-                borderWidth: 1
-            }]
-        },
-        options: { responsive: true }
-    });
-    
-    // Gráfico de Barras: Provas por Mês
-    const mesCtx = document.getElementById('mesChart').getContext('2d');
-    new Chart(mesCtx, {
-        type: 'bar',
-        data: {
-            labels: {{ meses|tojson }},
-            datasets: [{
-                label: 'Provas',
-                data: {{ valores_meses }},
-                backgroundColor: ['#b30000', '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1'],
-                borderColor: ['#990000', '#0056b3', '#1e7e34', '#e0a800', '#bd2130', '#5a32a3'],
-                borderWidth: 1
-            }]
-        },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-    });
+// gráfico status
+new Chart(document.getElementById('statusChart'), {
+    type: 'pie',
+    data: {
+        labels: ['Pendentes','Confirmadas'],
+        datasets: [{
+            data: [{{ total_pendentes }}, {{ total_confirmadas }}]
+        }]
+    }
+});
+
+// gráfico mês
+new Chart(document.getElementById('mesChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ meses|tojson }},
+        datasets: [{
+            label: 'Provas',
+            data: {{ valores_meses }}
+        }]
+    }
+});
+
+// PWA Service Worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/estatico/sw.js');
+}
 </script>
+
 </body>
 </html>
